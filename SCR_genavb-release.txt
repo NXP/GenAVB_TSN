@@ -1,8 +1,8 @@
 NXP Software Content Register
 
 Release Name:           genavb-linux-sdk
-Version:                GenAVB 3_2-62d2439
-Date Created:           11-2020
+Version:                GenAVB/TSN 3_2_1
+Date Created:           November-2020
 Release Location:       https://github.com/NXP/GenAVB_TSN
 Description:            GenAVB protocol stack, library, scripts, applications and Linux module for NXP MPUs/MCUs processors
 

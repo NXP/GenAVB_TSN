@@ -3,7 +3,7 @@
 # Start the GenAVB stack....
 #
 
-source "/etc/genavb/config"
+. "/etc/genavb/config"
 
 case "$1" in
   start)

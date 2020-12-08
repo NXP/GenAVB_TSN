@@ -2,7 +2,7 @@
 
 PACKAGE=BRIDGE
 
-source "/etc/genavb/config"
+. "/etc/genavb/config"
 
 PTP_APP="fslptp"
 PTP_APP_BR="fslptp-br"
@@ -24,8 +24,7 @@ NET_AVB_MODULE=1
 # - SabreSD
 detect_machine ()
 {
-	cat /proc/cpuinfo | grep "Vybrid VF610" > /dev/null
-	if [ "$?" == 0 ]; then
+	if grep -q 'Vybrid VF610' /proc/cpuinfo; then
 		echo 'Vybrid'
 	elif grep -q 'sac58r' /proc/cpuinfo; then
 		echo 'sac58r'
@@ -56,7 +55,6 @@ set_machine_variables()
 case $1 in
 'imx8mpevk')
 	ITF=eth1
-	SET_AFFINITY=0
 	NET_AVB_MODULE=0
 	;;
 'LS1028A')
@@ -72,7 +70,7 @@ esac
 
 gptp_ipc_nodes()
 {
-	major=`grep ipcdrv /proc/devices | awk '{ print $1 }' -`
+	major=$(grep ipcdrv /proc/devices | awk '{ print $1 }' -)
 
 	rm -fr /dev/ipc_media_stack_gptp_rx
 	rm -fr /dev/ipc_media_stack_gptp_tx
@@ -81,17 +79,17 @@ gptp_ipc_nodes()
 	rm -fr /dev/ipc_gptp_media_stack_sync_rx
 	rm -fr /dev/ipc_gptp_media_stack_sync_tx
 
-	mknod /dev/ipc_media_stack_gptp_rx c $major 46
-	mknod /dev/ipc_media_stack_gptp_tx c $major 47
-	mknod /dev/ipc_gptp_media_stack_rx c $major 148
-	mknod /dev/ipc_gptp_media_stack_tx c $major 149
-	mknod /dev/ipc_gptp_media_stack_sync_rx c $major 150
-	mknod /dev/ipc_gptp_media_stack_sync_tx c $major 151
+	mknod /dev/ipc_media_stack_gptp_rx c "$major" 46
+	mknod /dev/ipc_media_stack_gptp_tx c "$major" 47
+	mknod /dev/ipc_gptp_media_stack_rx c "$major" 148
+	mknod /dev/ipc_gptp_media_stack_tx c "$major" 149
+	mknod /dev/ipc_gptp_media_stack_sync_rx c "$major" 150
+	mknod /dev/ipc_gptp_media_stack_sync_tx c "$major" 151
 }
 
 mac_service_ipc_nodes()
 {
-	major=`grep ipcdrv /proc/devices | awk '{ print $1 }' -`
+	major=$(grep ipcdrv /proc/devices | awk '{ print $1 }' -)
 
 	rm -fr /dev/ipc_media_stack_mac_service_rx
 	rm -fr /dev/ipc_media_stack_mac_service_tx
@@ -100,17 +98,17 @@ mac_service_ipc_nodes()
 	rm -fr /dev/ipc_mac_service_media_stack_sync_rx
 	rm -fr /dev/ipc_mac_service_media_stack_sync_tx
 
-	mknod /dev/ipc_media_stack_mac_service_rx c $major 58
-	mknod /dev/ipc_media_stack_mac_service_tx c $major 59
-	mknod /dev/ipc_mac_service_media_stack_rx c $major 160
-	mknod /dev/ipc_mac_service_media_stack_tx c $major 161
-	mknod /dev/ipc_mac_service_media_stack_sync_rx c $major 162
-	mknod /dev/ipc_mac_service_media_stack_sync_tx c $major 163
+	mknod /dev/ipc_media_stack_mac_service_rx c "$major" 58
+	mknod /dev/ipc_media_stack_mac_service_tx c "$major" 59
+	mknod /dev/ipc_mac_service_media_stack_rx c "$major" 160
+	mknod /dev/ipc_mac_service_media_stack_tx c "$major" 161
+	mknod /dev/ipc_mac_service_media_stack_sync_rx c "$major" 162
+	mknod /dev/ipc_mac_service_media_stack_sync_tx c "$major" 163
 }
 
 bridge_ipc_nodes()
 {
-	major=`grep ipcdrv /proc/devices | awk '{ print $1 }' -`
+	major=$(grep ipcdrv /proc/devices | awk '{ print $1 }' -)
 
 	rm -fr /dev/ipc_media_stack_gptp_bridge_rx
 	rm -fr /dev/ipc_media_stack_gptp_bridge_tx
@@ -126,35 +124,35 @@ bridge_ipc_nodes()
 	rm -fr /dev/ipc_mac_service_bridge_media_stack_sync_rx
 	rm -fr /dev/ipc_mac_service_bridge_media_stack_sync_tx
 
-	mknod /dev/ipc_media_stack_gptp_bridge_rx c $major 52
-	mknod /dev/ipc_media_stack_gptp_bridge_tx c $major 53
-	mknod /dev/ipc_gptp_bridge_media_stack_rx c $major 154
-	mknod /dev/ipc_gptp_bridge_media_stack_tx c $major 155
-	mknod /dev/ipc_gptp_bridge_media_stack_sync_rx c $major 156
-	mknod /dev/ipc_gptp_bridge_media_stack_sync_tx c $major 157
+	mknod /dev/ipc_media_stack_gptp_bridge_rx c "$major" 52
+	mknod /dev/ipc_media_stack_gptp_bridge_tx c "$major" 53
+	mknod /dev/ipc_gptp_bridge_media_stack_rx c "$major" 154
+	mknod /dev/ipc_gptp_bridge_media_stack_tx c "$major" 155
+	mknod /dev/ipc_gptp_bridge_media_stack_sync_rx c "$major" 156
+	mknod /dev/ipc_gptp_bridge_media_stack_sync_tx c "$major" 157
 
-	mknod /dev/ipc_media_stack_mac_service_bridge_rx c $major 76
-	mknod /dev/ipc_media_stack_mac_service_bridge_tx c $major 77
-	mknod /dev/ipc_mac_service_bridge_media_stack_rx c $major 178
-	mknod /dev/ipc_mac_service_bridge_media_stack_tx c $major 179
-	mknod /dev/ipc_mac_service_bridge_media_stack_sync_rx c $major 180
-	mknod /dev/ipc_mac_service_bridge_media_stack_sync_tx c $major 181
+	mknod /dev/ipc_media_stack_mac_service_bridge_rx c "$major" 76
+	mknod /dev/ipc_media_stack_mac_service_bridge_tx c "$major" 77
+	mknod /dev/ipc_mac_service_bridge_media_stack_rx c "$major" 178
+	mknod /dev/ipc_mac_service_bridge_media_stack_tx c "$major" 179
+	mknod /dev/ipc_mac_service_bridge_media_stack_sync_rx c "$major" 180
+	mknod /dev/ipc_mac_service_bridge_media_stack_sync_tx c "$major" 181
 }
 
 load_genavb_module()
 {
-	insmod /lib/modules/`uname -r`/genavb/avb.ko > /dev/null 2>&1
+	insmod /lib/modules/"$(uname -r)"/genavb/avb.ko > /dev/null 2>&1
 
 	if [ $NET_AVB_MODULE -eq 1  ]; then
-		major=`grep avbdrv /proc/devices | awk '{ print $1 }' -`
+		major=$(grep avbdrv /proc/devices | awk '{ print $1 }' -)
 		rm -fr /dev/avb
-		mknod /dev/avb c $major 0
+		mknod /dev/avb c "$major" 0
 
-		major=`grep netdrv /proc/devices | awk '{ print $1 }' -`
+		major=$(grep netdrv /proc/devices | awk '{ print $1 }' -)
 		rm -fr /dev/net_rx
 		rm -fr /dev/net_tx
-		mknod /dev/net_rx c $major 0
-		mknod /dev/net_tx c $major 1
+		mknod /dev/net_rx c "$major" 0
+		mknod /dev/net_tx c "$major" 1
 	fi
 }
 
@@ -166,8 +164,8 @@ start_gptp_stack()
 	mac_service_ipc_nodes
 
 	if [ -f $PIDFILE ]; then
-		ps_list=`${PS}`
-		ptp_running=`echo $ps_list | grep $PTP_APP`
+		ps_list=$(${PS})
+		ptp_running=$(echo "$ps_list" | grep $PTP_APP)
 		if [ -z "${ptp_running}" ]; then
 			rm $PIDFILE
 		else
@@ -175,7 +173,7 @@ start_gptp_stack()
 		fi
 	fi
 
-	$PTP_APP -f "$PTP_CFG_FILE" &> /var/log/$PTP_APP &
+	$PTP_APP -f "$PTP_CFG_FILE" > /var/log/$PTP_APP 2>&1 &
 
 	ptp_pid=$!
 
@@ -183,7 +181,7 @@ start_gptp_stack()
 
 	if [ $SET_AFFINITY -ne 0 ]; then
 		echo "setting PTP cpu affinity for pid $ptp_pid"
-		taskset -p $CPU_MASK $ptp_pid
+		taskset -p "$CPU_MASK" $ptp_pid
 		if [ "$?" != 0 ]; then
 			echo "!!! WARNING: Setting PTP cpu affinity failed!"
 		fi
@@ -196,11 +194,11 @@ start_gptp_stack()
 	fi
 
 	if [ "$CFG_USE_PHC2SYS" -eq 1 ]; then
-		ps_list=`${PS}`
-		phc_running=`echo $ps_list | grep phc2sys`
+		ps_list=$(${PS})
+		phc_running=$(echo "$ps_list" | grep phc2sys)
 		if [ -z "${phc_running}" ]; then
 			echo "Starting phc2sys"
-			taskset $CPU_MASK phc2sys -s ${ITF} -O 0 -S 0.00002 &
+			taskset "$CPU_MASK" phc2sys -s ${ITF} -O 0 -S 0.00002 &
 		fi
 	fi
 }
@@ -212,8 +210,8 @@ start_gptp_stack_br()
 	bridge_ipc_nodes
 
 	if [ -f $PIDFILE_BR ]; then
-		ps_list=`${PS}`
-		ptp_running=`echo $ps_list | grep $PTP_APP_BR`
+		ps_list=$(${PS})
+		ptp_running=$(echo "$ps_list" | grep $PTP_APP_BR)
 		if [ -z "${ptp_running}" ]; then
 			rm $PIDFILE_BR
 		else
@@ -221,7 +219,7 @@ start_gptp_stack_br()
 		fi
 	fi
 
-	$PTP_APP_BR -f "$PTP_CFG_FILE_BR" &> /var/log/$PTP_APP_BR &
+	$PTP_APP_BR -f "$PTP_CFG_FILE_BR" > /var/log/$PTP_APP_BR 2>&1 &
 
 	ptp_br_pid=$!
 
@@ -229,7 +227,7 @@ start_gptp_stack_br()
 
 	if [ $SET_AFFINITY -ne 0 ]; then
 		echo "setting PTP bridge cpu affinity for pid $ptp_br_pid"
-		taskset -p $CPU_MASK $ptp_br_pid
+		taskset -p "$CPU_MASK" $ptp_br_pid
 		if [ "$?" != 0 ]; then
 			echo "!!! WARNING: Setting PTP bridge cpu affinity failed!"
 		fi
@@ -247,7 +245,7 @@ stop_gptp_stack()
 	echo "Stopping fslptp endpoint stack"
 
 	if [ -f $PIDFILE ]; then
-		kill $(cat $PIDFILE) > /dev/null 2>&1
+		kill "$(cat $PIDFILE)" > /dev/null 2>&1
 		rm $PIDFILE
 	fi
 }
@@ -257,7 +255,7 @@ stop_gptp_stack_br()
 	echo "Stopping fslptp bridge stack"
 
 	if [ -f $PIDFILE_BR ]; then
-		kill $(cat $PIDFILE_BR) > /dev/null 2>&1
+		kill "$(cat $PIDFILE_BR)" > /dev/null 2>&1
 		rm $PIDFILE_BR
 	fi
 }
@@ -266,14 +264,14 @@ start_br()
 {
 	load_genavb_module
 
-	if [ $PACKAGE == "BRIDGE" ] || [ $PACKAGE == "HYBRID" ]; then
+	if [ $PACKAGE = "BRIDGE" ] || [ $PACKAGE = "HYBRID" ]; then
 		start_gptp_stack_br
 	fi
 }
 
 stop_br()
 {
-	if [ $PACKAGE == "BRIDGE" ] || [ $PACKAGE == "HYBRID" ]; then
+	if [ $PACKAGE = "BRIDGE" ] || [ $PACKAGE = "HYBRID" ]; then
 		stop_gptp_stack_br
 	fi
 }
@@ -282,14 +280,14 @@ start_ep()
 {
 	load_genavb_module
 
-	if [ $PACKAGE == "ENDPOINT" ] || [ $PACKAGE == "HYBRID" ]; then
+	if [ $PACKAGE = "ENDPOINT" ] || [ $PACKAGE = "HYBRID" ]; then
 		start_gptp_stack
 	fi
 }
 
 stop_ep()
 {
-	if [ $PACKAGE == "ENDPOINT" ] || [ $PACKAGE == "HYBRID" ]; then
+	if [ $PACKAGE = "ENDPOINT" ] || [ $PACKAGE = "HYBRID" ]; then
 		stop_gptp_stack
 	fi
 }
@@ -298,22 +296,22 @@ start()
 {
 	load_genavb_module
 
-	if [ $PACKAGE == "BRIDGE" ] || [ $PACKAGE == "HYBRID" ]; then
+	if [ $PACKAGE = "BRIDGE" ] || [ $PACKAGE = "HYBRID" ]; then
 		start_gptp_stack_br
 	fi
 
-	if [ $PACKAGE == "ENDPOINT" ] || [ $PACKAGE == "HYBRID" ]; then
+	if [ $PACKAGE = "ENDPOINT" ] || [ $PACKAGE = "HYBRID" ]; then
 		start_gptp_stack
 	fi
 }
 
 stop()
 {
-	if [ $PACKAGE == "BRIDGE" ] || [ $PACKAGE == "HYBRID" ]; then
+	if [ $PACKAGE = "BRIDGE" ] || [ $PACKAGE = "HYBRID" ]; then
 		stop_gptp_stack_br
 	fi
 
-	if [ $PACKAGE == "ENDPOINT" ] || [ $PACKAGE == "HYBRID" ]; then
+	if [ $PACKAGE = "ENDPOINT" ] || [ $PACKAGE = "HYBRID" ]; then
 		stop_gptp_stack
 	fi
 }
@@ -326,13 +324,11 @@ PATH=/sbin:/usr/sbin:/bin:/usr/bin:.
 ps -V 2>&1 |grep -q procps && PS='ps ax' || PS='ps'
 echo "Using ps = ${PS}"
 
-NB_CPU=`cat /proc/cpuinfo | grep processor | wc -l`
-if  [ $NB_CPU -ge 2 ];then
+NB_CPU=$(grep -c processor /proc/cpuinfo)
+if  [ "$NB_CPU" -ge 2 ];then
 	CPU_MASK=2
-	CPU_CORE=1
 else
 	CPU_MASK=1
-	CPU_CORE=0
 fi
 
 # Detect the platform we are running on and set $MACHINE accordingly, then set variables.

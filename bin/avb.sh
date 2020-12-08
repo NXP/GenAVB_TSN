@@ -2,10 +2,10 @@
 
 PACKAGE=ENDPOINT
 
-source "/etc/genavb/config"
+. "/etc/genavb/config"
 
-if [ $PACKAGE == "ENDPOINT" ] || [ $PACKAGE == "HYBRID" ]; then
-	source $APPS_CFG_FILE
+if [ $PACKAGE = "ENDPOINT" ] || [ $PACKAGE = "HYBRID" ]; then
+	. "$APPS_CFG_FILE"
 fi
 
 # Detect the machine we are running on.
@@ -15,8 +15,7 @@ fi
 # - SabreSD
 detect_machine ()
 {
-	cat /proc/cpuinfo | grep "Vybrid VF610" > /dev/null
-	if [ "$?" == 0 ]; then
+	if grep -q 'Vybrid VF610' /proc/cpuinfo; then
 		echo 'Vybrid'
 	elif grep -q 'sac58r' /proc/cpuinfo; then
 		echo 'sac58r'
@@ -38,6 +37,19 @@ detect_machine ()
 		echo 'LS1028A'
 	else
 		echo 'SabreAI'
+	fi
+}
+
+kill_process()
+{
+	local name
+
+	name="$(basename "$1")"
+
+	if [ -x "$(which killall)" ]; then
+		killall -q "$name"
+	else
+		pkill -x "$name"
 	fi
 }
 
@@ -96,11 +108,11 @@ case $1 in
 	# Pass dummy as alsa control to make the controls app open the controlled socket anyway
 	CFG_EXTERNAL_CONTROLS_APP_OPT="-m dummy"
 	# Set Primary video device
-	if [ -z "$CFG_PRIMARY_VIDEO_DEVICE" ] || [ "$CFG_PRIMARY_VIDEO_DEVICE" == "default" ]; then
+	if [ -z "$CFG_PRIMARY_VIDEO_DEVICE" ] || [ "$CFG_PRIMARY_VIDEO_DEVICE" = "default" ]; then
 		CFG_PRIMARY_VIDEO_DEVICE="hdmi"
 	fi
 	# Set MJPEG minimum latency
-	if [ -z "$CFG_TOTAL_MJPEG_LATENCY" ] || [ "$CFG_TOTAL_MJPEG_LATENCY" == "default" ]; then
+	if [ -z "$CFG_TOTAL_MJPEG_LATENCY" ] || [ "$CFG_TOTAL_MJPEG_LATENCY" = "default" ]; then
 		CFG_TOTAL_MJPEG_LATENCY="74000000"
 	fi
 	;;
@@ -115,11 +127,11 @@ case $1 in
 	# Pass dummy as alsa control to make the controls app open the controlled socket anyway
 	CFG_EXTERNAL_CONTROLS_APP_OPT="-m dummy"
 	# Set Primary video device
-	if [ -z "$CFG_PRIMARY_VIDEO_DEVICE" ] || [ "$CFG_PRIMARY_VIDEO_DEVICE" == "default" ]; then
+	if [ -z "$CFG_PRIMARY_VIDEO_DEVICE" ] || [ "$CFG_PRIMARY_VIDEO_DEVICE" = "default" ]; then
 		CFG_PRIMARY_VIDEO_DEVICE="hdmi"
 	fi
 	# Set MJPEG minimum latency
-	if [ -z "$CFG_TOTAL_MJPEG_LATENCY" ] || [ "$CFG_TOTAL_MJPEG_LATENCY" == "default" ]; then
+	if [ -z "$CFG_TOTAL_MJPEG_LATENCY" ] || [ "$CFG_TOTAL_MJPEG_LATENCY" = "default" ]; then
 		CFG_TOTAL_MJPEG_LATENCY="74000000"
 	fi
 	;;
@@ -145,11 +157,11 @@ case $1 in
 	CFG_EXTERNAL_CONTROLS_APP_OPT="-m DAC1"
 	CFG_CONTROLLER_APP_MACH_OPT_WL="-e /dev/input/event0"
 	SND_SOC_CARD_NAME="cs42888-audio"
-	if [ -z "$CFG_PRIMARY_VIDEO_DEVICE" ] || [ "$CFG_PRIMARY_VIDEO_DEVICE" == "default" ]; then
+	if [ -z "$CFG_PRIMARY_VIDEO_DEVICE" ] || [ "$CFG_PRIMARY_VIDEO_DEVICE" = "default" ]; then
 		CFG_PRIMARY_VIDEO_DEVICE="lvds"
 	fi
 	# Set MJPEG minimum latency
-	if [ -z "$CFG_TOTAL_MJPEG_LATENCY" ] || [ "$CFG_TOTAL_MJPEG_LATENCY" == "default" ]; then
+	if [ -z "$CFG_TOTAL_MJPEG_LATENCY" ] || [ "$CFG_TOTAL_MJPEG_LATENCY" = "default" ]; then
 		CFG_TOTAL_MJPEG_LATENCY="41000000"
 	fi
 	;;
@@ -178,7 +190,7 @@ gst_plugin_setup()
 {
 	echo "Generating gst plugins registry file"
 
-	if [ -f $GST_INSPECT1 ]; then
+	if [ -f "$GST_INSPECT1" ]; then
 		$GST_INSPECT1 > /dev/null
 	fi
 
@@ -188,7 +200,7 @@ gst_plugin_setup()
 # 'Default' alsa mixer setup.
 alsa_mixer_setup()
 {
-	aplay -l | grep $SND_SOC_CARD_NAME > /dev/null;
+	aplay -l | grep "$SND_SOC_CARD_NAME" > /dev/null;
 
 	if [ $? -ne 0 ]; then
 		echo "no known sound card registered"
@@ -244,7 +256,7 @@ alsa_mixer_setup()
 			;;
 		esac
 
-		echo Alsa mixer setup done for $SND_SOC_CARD_NAME
+		echo "Alsa mixer setup done for $SND_SOC_CARD_NAME"
 	fi
 }
 
@@ -260,7 +272,7 @@ start_gptp_stack()
 
 avdecc_ipc_nodes()
 {
-	major=`grep ipcdrv /proc/devices | awk '{ print $1 }' -`
+	major=$(grep ipcdrv /proc/devices | awk '{ print $1 }' -)
 
 	rm -fr /dev/ipc_avdecc_srp_rx
 	rm -fr /dev/ipc_avdecc_srp_tx
@@ -285,33 +297,33 @@ avdecc_ipc_nodes()
 	rm -fr /dev/ipc_avdecc_controller_sync_rx
 	rm -fr /dev/ipc_avdecc_controller_sync_tx
 
-	mknod /dev/ipc_avdecc_srp_rx c $major 0
-	mknod /dev/ipc_avdecc_srp_tx c $major 1
+	mknod /dev/ipc_avdecc_srp_rx c "$major" 0
+	mknod /dev/ipc_avdecc_srp_tx c "$major" 1
 
-	mknod /dev/ipc_avdecc_media_stack_rx c $major 2
-	mknod /dev/ipc_avdecc_media_stack_tx c $major 3
-	mknod /dev/ipc_media_stack_avdecc_rx c $major 4
-	mknod /dev/ipc_media_stack_avdecc_tx c $major 5
+	mknod /dev/ipc_avdecc_media_stack_rx c "$major" 2
+	mknod /dev/ipc_avdecc_media_stack_tx c "$major" 3
+	mknod /dev/ipc_media_stack_avdecc_rx c "$major" 4
+	mknod /dev/ipc_media_stack_avdecc_tx c "$major" 5
 
-	mknod /dev/ipc_avdecc_maap_rx c $major 6
-	mknod /dev/ipc_avdecc_maap_tx c $major 7
+	mknod /dev/ipc_avdecc_maap_rx c "$major" 6
+	mknod /dev/ipc_avdecc_maap_tx c "$major" 7
 
-	mknod /dev/ipc_avdecc_controlled_rx c $major 8
-	mknod /dev/ipc_avdecc_controlled_tx c $major 9
-	mknod /dev/ipc_controlled_avdecc_rx c $major 10
-	mknod /dev/ipc_controlled_avdecc_tx c $major 11
+	mknod /dev/ipc_avdecc_controlled_rx c "$major" 8
+	mknod /dev/ipc_avdecc_controlled_tx c "$major" 9
+	mknod /dev/ipc_controlled_avdecc_rx c "$major" 10
+	mknod /dev/ipc_controlled_avdecc_tx c "$major" 11
 
-	mknod /dev/ipc_avdecc_controller_rx c $major 12
-	mknod /dev/ipc_avdecc_controller_tx c $major 13
-	mknod /dev/ipc_controller_avdecc_rx c $major 14
-	mknod /dev/ipc_controller_avdecc_tx c $major 15
-	mknod /dev/ipc_avdecc_controller_sync_rx c $major 16
-	mknod /dev/ipc_avdecc_controller_sync_tx c $major 17
+	mknod /dev/ipc_avdecc_controller_rx c "$major" 12
+	mknod /dev/ipc_avdecc_controller_tx c "$major" 13
+	mknod /dev/ipc_controller_avdecc_rx c "$major" 14
+	mknod /dev/ipc_controller_avdecc_tx c "$major" 15
+	mknod /dev/ipc_avdecc_controller_sync_rx c "$major" 16
+	mknod /dev/ipc_avdecc_controller_sync_tx c "$major" 17
 }
 
 avtp_ipc_nodes()
 {
-	major=`grep ipcdrv /proc/devices | awk '{ print $1 }' -`
+	major=$(grep ipcdrv /proc/devices | awk '{ print $1 }' -)
 
 	rm -fr /dev/ipc_media_stack_avtp_rx
 	rm -fr /dev/ipc_media_stack_avtp_tx
@@ -321,18 +333,18 @@ avtp_ipc_nodes()
 	rm -fr /dev/ipc_avtp_stats_rx
 	rm -fr /dev/ipc_avtp_stats_tx
 
-	mknod /dev/ipc_media_stack_avtp_rx c $major 22
-	mknod /dev/ipc_media_stack_avtp_tx c $major 23
-	mknod /dev/ipc_avtp_media_stack_rx c $major 124
-	mknod /dev/ipc_avtp_media_stack_tx c $major 125
+	mknod /dev/ipc_media_stack_avtp_rx c "$major" 22
+	mknod /dev/ipc_media_stack_avtp_tx c "$major" 23
+	mknod /dev/ipc_avtp_media_stack_rx c "$major" 124
+	mknod /dev/ipc_avtp_media_stack_tx c "$major" 125
 
-	mknod /dev/ipc_avtp_stats_rx c $major 44
-	mknod /dev/ipc_avtp_stats_tx c $major 45
+	mknod /dev/ipc_avtp_stats_rx c "$major" 44
+	mknod /dev/ipc_avtp_stats_tx c "$major" 45
 }
 
 srp_ipc_nodes()
 {
-	major=`grep ipcdrv /proc/devices | awk '{ print $1 }' -`
+	major=$(grep ipcdrv /proc/devices | awk '{ print $1 }' -)
 
 	rm -fr /dev/ipc_media_stack_msrp_rx
 	rm -fr /dev/ipc_media_stack_msrp_tx
@@ -348,24 +360,24 @@ srp_ipc_nodes()
 	rm -fr /dev/ipc_mvrp_media_stack_sync_rx
 	rm -fr /dev/ipc_mvrp_media_stack_sync_tx
 
-	mknod /dev/ipc_media_stack_msrp_rx c $major 26
-	mknod /dev/ipc_media_stack_msrp_tx c $major 27
-	mknod /dev/ipc_msrp_media_stack_rx c $major 128
-	mknod /dev/ipc_msrp_media_stack_tx c $major 129
-	mknod /dev/ipc_msrp_media_stack_sync_rx c $major 130
-	mknod /dev/ipc_msrp_media_stack_sync_tx c $major 131
+	mknod /dev/ipc_media_stack_msrp_rx c "$major" 26
+	mknod /dev/ipc_media_stack_msrp_tx c "$major" 27
+	mknod /dev/ipc_msrp_media_stack_rx c "$major" 128
+	mknod /dev/ipc_msrp_media_stack_tx c "$major" 129
+	mknod /dev/ipc_msrp_media_stack_sync_rx c "$major" 130
+	mknod /dev/ipc_msrp_media_stack_sync_tx c "$major" 131
 
-	mknod /dev/ipc_media_stack_mvrp_rx c $major 32
-	mknod /dev/ipc_media_stack_mvrp_tx c $major 33
-	mknod /dev/ipc_mvrp_media_stack_rx c $major 134
-	mknod /dev/ipc_mvrp_media_stack_tx c $major 135
-	mknod /dev/ipc_mvrp_media_stack_sync_rx c $major 136
-	mknod /dev/ipc_mvrp_media_stack_sync_tx c $major 137
+	mknod /dev/ipc_media_stack_mvrp_rx c "$major" 32
+	mknod /dev/ipc_media_stack_mvrp_tx c "$major" 33
+	mknod /dev/ipc_mvrp_media_stack_rx c "$major" 134
+	mknod /dev/ipc_mvrp_media_stack_tx c "$major" 135
+	mknod /dev/ipc_mvrp_media_stack_sync_rx c "$major" 136
+	mknod /dev/ipc_mvrp_media_stack_sync_tx c "$major" 137
 }
 
 clock_domain_ipc_nodes ()
 {
-	major=`grep ipcdrv /proc/devices | awk '{ print $1 }' -`
+	major=$(grep ipcdrv /proc/devices | awk '{ print $1 }' -)
 
 	rm -fr /dev/ipc_media_stack_clock_domain_rx
 	rm -fr /dev/ipc_media_stack_clock_domain_tx
@@ -374,17 +386,17 @@ clock_domain_ipc_nodes ()
 	rm -fr /dev/ipc_clock_domain_media_stack_sync_rx
 	rm -fr /dev/ipc_clock_domain_media_stack_sync_tx
 
-	mknod /dev/ipc_media_stack_clock_domain_rx c $major 38
-	mknod /dev/ipc_media_stack_clock_domain_tx c $major 39
-	mknod /dev/ipc_clock_domain_media_stack_rx c $major 140
-	mknod /dev/ipc_clock_domain_media_stack_tx c $major 141
-	mknod /dev/ipc_clock_domain_media_stack_sync_rx c $major 142
-	mknod /dev/ipc_clock_domain_media_stack_sync_tx c $major 143
+	mknod /dev/ipc_media_stack_clock_domain_rx c "$major" 38
+	mknod /dev/ipc_media_stack_clock_domain_tx c "$major" 39
+	mknod /dev/ipc_clock_domain_media_stack_rx c "$major" 140
+	mknod /dev/ipc_clock_domain_media_stack_tx c "$major" 141
+	mknod /dev/ipc_clock_domain_media_stack_sync_rx c "$major" 142
+	mknod /dev/ipc_clock_domain_media_stack_sync_tx c "$major" 143
 }
 
 bridge_ipc_nodes()
 {
-	major=`grep ipcdrv /proc/devices | awk '{ print $1 }' -`
+	major=$(grep ipcdrv /proc/devices | awk '{ print $1 }' -)
 
 	rm -fr /dev/ipc_media_stack_msrp_bridge_rx
 	rm -fr /dev/ipc_media_stack_msrp_bridge_tx
@@ -400,84 +412,84 @@ bridge_ipc_nodes()
 	rm -fr /dev/ipc_mvrp_bridge_media_stack_sync_rx
 	rm -fr /dev/ipc_mvrp_bridge_media_stack_sync_tx
 
-	mknod /dev/ipc_media_stack_msrp_bridge_rx c $major 64
-	mknod /dev/ipc_media_stack_msrp_bridge_tx c $major 65
-	mknod /dev/ipc_msrp_bridge_media_stack_rx c $major 166
-	mknod /dev/ipc_msrp_bridge_media_stack_tx c $major 167
-	mknod /dev/ipc_msrp_bridge_media_stack_sync_rx c $major 168
-	mknod /dev/ipc_msrp_bridge_media_stack_sync_tx c $major 169
+	mknod /dev/ipc_media_stack_msrp_bridge_rx c "$major" 64
+	mknod /dev/ipc_media_stack_msrp_bridge_tx c "$major" 65
+	mknod /dev/ipc_msrp_bridge_media_stack_rx c "$major" 166
+	mknod /dev/ipc_msrp_bridge_media_stack_tx c "$major" 167
+	mknod /dev/ipc_msrp_bridge_media_stack_sync_rx c "$major" 168
+	mknod /dev/ipc_msrp_bridge_media_stack_sync_tx c "$major" 169
 
-	mknod /dev/ipc_media_stack_mvrp_bridge_rx c $major 70
-	mknod /dev/ipc_media_stack_mvrp_bridge_tx c $major 71
-	mknod /dev/ipc_mvrp_bridge_media_stack_rx c $major 172
-	mknod /dev/ipc_mvrp_bridge_media_stack_tx c $major 173
-	mknod /dev/ipc_mvrp_bridge_media_stack_sync_rx c $major 174
-	mknod /dev/ipc_mvrp_bridge_media_stack_sync_tx c $major 175
+	mknod /dev/ipc_media_stack_mvrp_bridge_rx c "$major" 70
+	mknod /dev/ipc_media_stack_mvrp_bridge_tx c "$major" 71
+	mknod /dev/ipc_mvrp_bridge_media_stack_rx c "$major" 172
+	mknod /dev/ipc_mvrp_bridge_media_stack_tx c "$major" 173
+	mknod /dev/ipc_mvrp_bridge_media_stack_sync_rx c "$major" 174
+	mknod /dev/ipc_mvrp_bridge_media_stack_sync_tx c "$major" 175
 }
 
 media_device_nodes()
 {
-	major=`grep media_drv /proc/devices | awk '{ print $1 }' -`
+	major=$(grep media_drv /proc/devices | awk '{ print $1 }' -)
 
 	rm -fr /dev/media_queue_net
 	rm -fr /dev/media_queue_api
 
-	mknod /dev/media_queue_net c $major 0
-	mknod /dev/media_queue_api c $major 1
+	mknod /dev/media_queue_net c "$major" 0
+	mknod /dev/media_queue_api c "$major" 1
 }
 
 mclock_nodes()
 {
-	major=`grep mclock /proc/devices | awk '{ print $1 }' -`
+	major=$(grep mclock /proc/devices | awk '{ print $1 }' -)
 
 	rm -fr /dev/mclk_rec_0
 	rm -fr /dev/mclk_gen_0
 	rm -fr /dev/mclk_ptp_0
 	rm -fr /dev/mclk_ptp_1
 
-	mknod /dev/mclk_rec_0 c $major 0
-	mknod /dev/mclk_gen_0 c $major 8
-	mknod /dev/mclk_ptp_0 c $major 16
-	mknod /dev/mclk_ptp_1 c $major 17
+	mknod /dev/mclk_rec_0 c "$major" 0
+	mknod /dev/mclk_gen_0 c "$major" 8
+	mknod /dev/mclk_ptp_0 c "$major" 16
+	mknod /dev/mclk_ptp_1 c "$major" 17
 }
 
 mtimer_nodes()
 {
-	major=`grep mtimer /proc/devices | awk '{ print $1 }' -`
+	major=$(grep mtimer /proc/devices | awk '{ print $1 }' -)
 
 	rm -fr /dev/mclk_rec_timer_0
 	rm -fr /dev/mclk_gen_timer_0
 	rm -fr /dev/mclk_ptp_timer_0
 	rm -fr /dev/mclk_ptp_timer_1
 
-	mknod /dev/mclk_rec_timer_0 c $major 0
-	mknod /dev/mclk_gen_timer_0 c $major 8
-	mknod /dev/mclk_ptp_timer_0 c $major 16
-	mknod /dev/mclk_ptp_timer_1 c $major 17
+	mknod /dev/mclk_rec_timer_0 c "$major" 0
+	mknod /dev/mclk_gen_timer_0 c "$major" 8
+	mknod /dev/mclk_ptp_timer_0 c "$major" 16
+	mknod /dev/mclk_ptp_timer_1 c "$major" 17
 }
 
 load_genavb_module()
 {
-	insmod /lib/modules/`uname -r`/genavb/avb.ko > /dev/null 2>&1
+	insmod /lib/modules/"$(uname -r)"/genavb/avb.ko > /dev/null 2>&1
 
 	if [ $NET_AVB_MODULE -eq 1  ]; then
-		major=`grep avbdrv /proc/devices | awk '{ print $1 }' -`
+		major=$(grep avbdrv /proc/devices | awk '{ print $1 }' -)
 		rm -fr /dev/avb
-		mknod /dev/avb c $major 0
+		mknod /dev/avb c "$major" 0
 
-		major=`grep netdrv /proc/devices | awk '{ print $1 }' -`
+		major=$(grep netdrv /proc/devices | awk '{ print $1 }' -)
 		rm -fr /dev/net_rx
 		rm -fr /dev/net_tx
-		mknod /dev/net_rx c $major 0
-		mknod /dev/net_tx c $major 1
+		mknod /dev/net_rx c "$major" 0
+		mknod /dev/net_tx c "$major" 1
 	fi
 
-	if [ $PACKAGE == "ENDPOINT" ] || [ $PACKAGE == "HYBRID" ]; then
+	if [ $PACKAGE = "ENDPOINT" ] || [ $PACKAGE = "HYBRID" ]; then
 		srp_ipc_nodes
 	fi
 
-	if [ $TSN -eq 0 ]; then
-		if [ $PACKAGE == "ENDPOINT" ] || [ $PACKAGE == "HYBRID" ]; then
+	if [ "$TSN" -eq 0 ]; then
+		if [ $PACKAGE = "ENDPOINT" ] || [ $PACKAGE = "HYBRID" ]; then
 			avdecc_ipc_nodes
 			avtp_ipc_nodes
 			clock_domain_ipc_nodes
@@ -487,7 +499,7 @@ load_genavb_module()
 		fi
 	fi
 
-	if [ $PACKAGE == "BRIDGE" ] || [ $PACKAGE == "HYBRID" ]; then
+	if [ $PACKAGE = "BRIDGE" ] || [ $PACKAGE = "HYBRID" ]; then
 		bridge_ipc_nodes
 	fi
 }
@@ -500,15 +512,14 @@ set_irq_priority_and_affinity()
 
 	# DMA IRQ
 	if [ -n "$IRQ_DMA_NAME" ]; then
-		irq_nb=`echo $(cat /proc/interrupts | grep $IRQ_DMA_NAME | awk -F: '{ print $1 }')`
+		irq_nb=$(grep $IRQ_DMA_NAME /proc/interrupts | awk -F: '{ print $1 }')
 		if [ -n "$irq_nb" ]; then
-			for _irq_nb in $irq_nb
-			do
+			for _irq_nb in $irq_nb; do
 				irq_pid=$(pgrep -f "irq/$_irq_nb-")
 				if [ -n "$irq_pid" ]; then
 					echo "Setting IRQ/$_irq_nb (DMA) priority to $IRQ_PRIO, with cpu affinity mask $CPU_MASK"
-					chrt -pf $IRQ_PRIO $irq_pid
-					[ $NB_CPU -gt 1 ] && echo $CPU_MASK > /proc/irq/$_irq_nb/smp_affinity
+					chrt -pf "$IRQ_PRIO" "$irq_pid"
+					[ "$NB_CPU" -gt 1 ] && echo "$CPU_MASK" > /proc/irq/"$_irq_nb"/smp_affinity
 				else
 					echo "!!! WARNING: Setting IRQ/$_irq_nb (DMA) priority to $IRQ_PRIO failed!"
 				fi
@@ -520,10 +531,11 @@ set_irq_priority_and_affinity()
 
 	# HW TIMER IRQ
 	if [ -n "$IRQ_TIMER_NAME" ]; then
-		irq_nb=`echo $(cat /proc/interrupts | grep $IRQ_TIMER_NAME | awk -F: '{ print $1 }')`
+		irq_nb=$(grep $IRQ_TIMER_NAME /proc/interrupts | awk -F: '{ print $1 }')
+		irq_nb=${irq_nb#" "}
 		if [ -n "$irq_nb" ]; then
 			echo "Setting IRQ/$irq_nb (TIMER) cpu affinity mask to $CPU_MASK"
-			[ $NB_CPU -gt 1 ] && echo $CPU_MASK > /proc/irq/$irq_nb/smp_affinity
+			[ "$NB_CPU" -gt 1 ] && echo "$CPU_MASK" > /proc/irq/"$irq_nb"/smp_affinity
 		else
 			echo "!!! WARNING: Setting IRQ/$irq_nb (TIMER) cpu affinity mask failed!"
 		fi
@@ -533,8 +545,8 @@ set_irq_priority_and_affinity()
 	kthread_pid=$(pgrep -f 'avb timer')
 	if [ -n "$kthread_pid" ]; then
 		echo "Setting AVB kthread priority to $KTHREAD_PRIO, with cpu affinity mask $CPU_MASK"
-		chrt -pf $KTHREAD_PRIO $kthread_pid
-		[ $NB_CPU -gt 1 ] && taskset -p $CPU_MASK $kthread_pid
+		chrt -pf "$KTHREAD_PRIO" "$kthread_pid"
+		[ "$NB_CPU" -gt 1 ] && taskset -p "$CPU_MASK" "$kthread_pid"
 	else
 		echo "!!! WARNING: Setting AVB kthread priority to $KTHREAD_PRIO failed!"
 	fi
@@ -543,8 +555,8 @@ set_irq_priority_and_affinity()
 	kthread_pid=$(pgrep -f 'sja1105 tick')
 	if [ -n "$kthread_pid" ]; then
 		echo "Setting SJA1105 Tick kthread priority to $KTHREAD_PRIO, with cpu affinity mask $CPU_MASK"
-		chrt -pf $KTHREAD_PRIO $kthread_pid
-		taskset -p $CPU_MASK $kthread_pid
+		chrt -pf "$KTHREAD_PRIO" "$kthread_pid"
+		taskset -p "$CPU_MASK" "$kthread_pid"
 		if [ $? != 0 ]; then
 			echo "!!! WARNING: Setting SJA1105 Tick kthread priority to $KTHREAD_PRIO failed!"
 		fi
@@ -552,20 +564,29 @@ set_irq_priority_and_affinity()
 
 	# ETHERNET IRQ(S)
 	if [ -n "$IRQ_ETH_NAME" ]; then
-		irq_nb=$(cat /proc/interrupts | grep $IRQ_ETH_NAME | awk -F: '{ print $1 }')
+		irq_nb=$(grep $IRQ_ETH_NAME /proc/interrupts | awk -F: '{ print $1 }')
 		if [ -n "$irq_nb" ]; then
-			for _irq_nb in $irq_nb
-			do
-				_irq_nb=`echo $_irq_nb`;
+			for _irq_nb in $irq_nb; do
 				if [ -n "$_irq_nb" ]; then
 					echo "Setting IRQ/$_irq_nb (Ethernet) cpu affinity mask to $CPU_MASK"
-					[ $NB_CPU -gt 1 ] && echo $CPU_MASK > /proc/irq/$_irq_nb/smp_affinity
+					[ "$NB_CPU" -gt 1 ] && echo "$CPU_MASK" > /proc/irq/"$_irq_nb"/smp_affinity
 				else
 					echo "!!! WARNING: Setting IRQ/$_irq_nb (Ethernet) cpu affinity mask failed!"
 				fi
 			done
 		else
 			echo "!!! WARNING: There is no matching ethernet interrupt!"
+		fi
+	fi
+
+	# ksoftirqd on TSN application's CPU
+	if [ $TSN -eq 1 ]; then
+		ksoft_pid=$(pgrep -f "ksoftirqd/$MEDIA_APP_CPU_CORE")
+		if [ -n "$ksoft_pid" ]; then
+			echo "Setting ksoftirqd/$MEDIA_APP_CPU_CORE priority to $KSOFT_PRIO"
+			chrt -pf $KSOFT_PRIO $ksoft_pid
+		else
+			echo "!!! WARNING: Setting ksoftirqd/$MEDIA_APP_CPU_CORE priority to $KSOFT_PRIO failed!"
 		fi
 	fi
 }
@@ -576,20 +597,20 @@ set_irq_priority_and_affinity()
 # $2 : disable state entry (0 or 1)
 set_cpu_idle_state_disable()
 {
-	if [ ! -d /sys/devices/system/cpu/cpu$1/cpuidle ]; then
+	if [ ! -d /sys/devices/system/cpu/cpu"$1"/cpuidle ]; then
 		echo "CPU#$1 idle entry is not present is sysfs"
 		return;
 	fi
 
 	# Check how many cpuidle states there are
-	NB_STATES=`ls -1qd /sys/devices/system/cpu/cpu$1/cpuidle/state* | wc -l`
+	NB_STATES=$(ls -1qd /sys/devices/system/cpu/cpu"$1"/cpuidle/state* | wc -l)
 	for i in $(seq 0 $((NB_STATES-1)))
 	do
-		_latency=`cat /sys/devices/system/cpu/cpu$1/cpuidle/state$i/latency`
+		_latency=$(cat /sys/devices/system/cpu/cpu"$1"/cpuidle/state"$i"/latency)
 		# Disable/Enable cpu idle states with latency greater thatn 10us
-		if [ $_latency -gt 10 ]; then
+		if [ "$_latency" -gt 10 ]; then
 			echo "Set CPU#$1 idle state$i disable to ($2)"
-			echo $2 > /sys/devices/system/cpu/cpu$1/cpuidle/state$i/disable
+			echo "$2" > /sys/devices/system/cpu/cpu"$1"/cpuidle/state"$i"/disable
 		fi
 	done
 }
@@ -610,16 +631,16 @@ set_cpu_power_management()
 	fi
 
 	if [ -f "/sys/devices/system/cpu/cpu$CPU_CORE/power/pm_qos_resume_latency_us" ]; then
-		echo "$qos_resume_latency" > /sys/devices/system/cpu/cpu$CPU_CORE/power/pm_qos_resume_latency_us
+		echo "$qos_resume_latency" > /sys/devices/system/cpu/cpu"$CPU_CORE"/power/pm_qos_resume_latency_us
 	else
-		set_cpu_idle_state_disable $CPU_CORE $disable
+		set_cpu_idle_state_disable "$CPU_CORE" $disable
 	fi
 
-	if [ $PACKAGE == "ENDPOINT" ] || [ $PACKAGE == "HYBRID" ]; then
+	if [ $PACKAGE = "ENDPOINT" ] || [ $PACKAGE = "HYBRID" ]; then
 		if [ -f "/sys/devices/system/cpu/cpu$MEDIA_APP_CPU_CORE/power/pm_qos_resume_latency_us" ]; then
-			echo "$qos_resume_latency" > /sys/devices/system/cpu/cpu$MEDIA_APP_CPU_CORE/power/pm_qos_resume_latency_us
+			echo "$qos_resume_latency" > /sys/devices/system/cpu/cpu"$MEDIA_APP_CPU_CORE"/power/pm_qos_resume_latency_us
 		else
-			set_cpu_idle_state_disable $MEDIA_APP_CPU_CORE $disable
+			set_cpu_idle_state_disable "$MEDIA_APP_CPU_CORE" $disable
 		fi
 	fi
 
@@ -628,7 +649,7 @@ set_cpu_power_management()
 setup()
 {
 	# Set CPU frequency @528Mhz for imx6ULL
-	if [ $MACHINE == "imx6ullEvkBoard" ]; then
+	if [ "$MACHINE" = "imx6ullEvkBoard" ]; then
 		echo userspace > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 		echo 528000 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_setspeed
 	fi
@@ -653,36 +674,36 @@ setup()
 
 stop_genavb()
 {
-	killall -q avb
+	kill_process avb
 }
 
 stop_genavb_br()
 {
-	killall -q avb-br
+	kill_process avb-br
 }
 
 stop_avb_apps()
 {
-	killall -q `basename $CFG_EXTERNAL_MEDIA_APP`
+	kill_process "$CFG_EXTERNAL_MEDIA_APP"
 
 	if [ "$CFG_USE_EXTERNAL_CONTROLS" -eq 1 ]; then
-		killall -q `basename $CFG_EXTERNAL_CONTROLS_APP`
+		kill_process "$CFG_EXTERNAL_CONTROLS_APP"
 	fi
 
-	if [ -x "`which "$CFG_CONTROLLER_APP" 2> /dev/null`" ]; then
-		killall -q `basename $CFG_CONTROLLER_APP`
+	if [ -x "$(which "$CFG_CONTROLLER_APP" 2> /dev/null)" ]; then
+		kill_process "$CFG_CONTROLLER_APP"
 	fi
 }
 
 stop_tsn_apps()
 {
-	killall -q `basename $CFG_EXTERNAL_MEDIA_APP`
+	kill_process "$CFG_EXTERNAL_MEDIA_APP"
 }
 
 stop()
 {
-	if [ $PACKAGE == "ENDPOINT" ] || [ $PACKAGE == "HYBRID" ]; then
-		if [ $TSN -eq 1 ]; then
+	if [ $PACKAGE = "ENDPOINT" ] || [ $PACKAGE = "HYBRID" ]; then
+		if [ "$TSN" -eq 1 ]; then
 			stop_tsn_apps
 		else
 			stop_avb_apps
@@ -691,7 +712,7 @@ stop()
 		stop_genavb
 	fi
 
-	if [ $PACKAGE == "BRIDGE" ] || [ $PACKAGE == "HYBRID" ]; then
+	if [ $PACKAGE = "BRIDGE" ] || [ $PACKAGE = "HYBRID" ]; then
 		stop_genavb_br
 	fi
 
@@ -701,12 +722,12 @@ stop()
 
 start_genavb()
 {
-	taskset $CPU_MASK avb -f "$GENAVB_CFG_FILE" &> /var/log/avb &
+	taskset "$CPU_MASK" avb -f "$GENAVB_CFG_FILE" > /var/log/avb 2>&1 &
 }
 
 start_genavb_br()
 {
-	taskset $CPU_MASK avb-br -f "$GENAVB_CFG_FILE" &> /var/log/avb-br &
+	taskset "$CPU_MASK" avb-br -f "$GENAVB_CFG_FILE" > /var/log/avb-br 2>&1 &
 }
 
 start_avb_apps()
@@ -736,36 +757,36 @@ start_avb_apps()
 	fi
 
 	if [ "$CFG_USE_EXTERNAL_CONTROLS" -eq 1 ]; then
-		taskset $CPU_MASK $CFG_EXTERNAL_CONTROLS_APP $CFG_EXTERNAL_CONTROLS_APP_OPT &> /var/log/avb_controls_app &
+		taskset "$CPU_MASK" "$CFG_EXTERNAL_CONTROLS_APP" $CFG_EXTERNAL_CONTROLS_APP_OPT > /var/log/avb_controls_app 2>&1 &
 	fi
 
 	# if controller app is required, test if app is executable
-	if [ -x "`which "$CFG_CONTROLLER_APP" 2> /dev/null`" ]; then
+	if [ -x "$(which "$CFG_CONTROLLER_APP" 2> /dev/null)" ]; then
 		if [ "$WL_BACKEND" -ne 1 ]; then
 			# blank screen
 			cat /dev/zero > /dev/fb0
 			# enable fb1
-			echo 0 > /sys/class/graphics/$CFG_CONTROLLER_FB/blank
+			echo 0 > /sys/class/graphics/"$CFG_CONTROLLER_FB"/blank
 			# Set the screen geometry
-			fbset $CFG_CONTROLLER_FBSET_OPT
+			fbset "$CFG_CONTROLLER_FBSET_OPT"
 
-			taskset $CPU_MASK $CFG_CONTROLLER_APP $CFG_CONTROLLER_APP_OPT_FB &> /var/log/avb_avdecc_controller &
+			taskset "$CPU_MASK" "$CFG_CONTROLLER_APP" $CFG_CONTROLLER_APP_OPT_FB > /var/log/avb_avdecc_controller >2&1 &
 		else
 			# Force the legacy wl-shell instead of xdg-shell to avoid touchscreen/surfaces wrong event handling on iMX6
 			export QT_WAYLAND_SHELL_INTEGRATION=wl-shell
-			taskset $CPU_MASK $CFG_CONTROLLER_APP $CFG_CONTROLLER_APP_OPT_WL $CFG_CONTROLLER_APP_MACH_OPT_WL &> /var/log/avb_avdecc_controller &
+			taskset "$CPU_MASK" "$CFG_CONTROLLER_APP" $CFG_CONTROLLER_APP_OPT_WL $CFG_CONTROLLER_APP_MACH_OPT_WL > /var/log/avb_avdecc_controller 2>&1 &
 		fi
 	fi
 
 	# Expand the video device variable
 	eval "CFG_EXTERNAL_MEDIA_APP_OPT=\"${CFG_EXTERNAL_MEDIA_APP_OPT}\""
 
-	taskset $MEDIA_APP_CPU_MASK $CFG_EXTERNAL_MEDIA_APP $CFG_EXTERNAL_MEDIA_APP_OPT &> /var/log/avb_media_app &
+	taskset "$MEDIA_APP_CPU_MASK" "$CFG_EXTERNAL_MEDIA_APP" $CFG_EXTERNAL_MEDIA_APP_OPT > /var/log/avb_media_app 2>&1 &
 }
 
 start_tsn_apps()
 {
-	taskset $MEDIA_APP_CPU_MASK $CFG_EXTERNAL_MEDIA_APP $CFG_EXTERNAL_MEDIA_APP_OPT &
+	taskset "$MEDIA_APP_CPU_MASK" "$CFG_EXTERNAL_MEDIA_APP" $CFG_EXTERNAL_MEDIA_APP_OPT &
 }
 
 start()
@@ -778,11 +799,11 @@ start()
 
 	start_gptp_stack
 
-	if [ $PACKAGE == "BRIDGE" ] || [ $PACKAGE == "HYBRID" ]; then
+	if [ $PACKAGE = "BRIDGE" ] || [ $PACKAGE = "HYBRID" ]; then
 		start_genavb_br
 	fi
 
-	if [ $PACKAGE == "ENDPOINT" ] || [ $PACKAGE == "HYBRID" ]; then
+	if [ $PACKAGE = "ENDPOINT" ] || [ $PACKAGE = "HYBRID" ]; then
 		echo "Starting AVB demo with profile " "$APPS_CFG_FILE"
 		echo "Starting GenAVB/TSN stack with configuration file: " "$GENAVB_CFG_FILE"
 
@@ -790,7 +811,7 @@ start()
 
 		sleep 1 # Work-around cases where the AVB stack isn't ready when the controls app (or media app) starts
 
-		if [ $TSN -eq 1 ]; then
+		if [ "$TSN" -eq 1 ]; then
 			start_tsn_apps
 		else
 			start_avb_apps
@@ -804,8 +825,8 @@ PATH=/sbin:/usr/sbin:/bin:/usr/bin:.
 
 GST_INSPECT1="/usr/bin/gst-inspect-1.0"
 
-NB_CPU=`cat /proc/cpuinfo | grep processor | wc -l`
-if  [ $NB_CPU -ge 2 ];then
+NB_CPU=$(grep -c processor /proc/cpuinfo)
+if  [ "$NB_CPU" -ge 2 ];then
 	CPU_MASK=2
 	CPU_CORE=1
 else
@@ -813,7 +834,7 @@ else
 	CPU_CORE=0
 fi
 
-if  [ $NB_CPU -gt 2 ];then
+if  [ "$NB_CPU" -gt 2 ];then
 	MEDIA_APP_CPU_MASK=4
 	MEDIA_APP_CPU_CORE=2
 else
@@ -828,6 +849,7 @@ MACHINE=$(detect_machine)
 ITF=eth0
 IRQ_PRIO=60
 KTHREAD_PRIO=60
+KSOFT_PRIO=10
 
 SET_AFFINITY=1
 FORCE_100M=1

@@ -27,7 +27,7 @@ void tsn_task_stats_init(struct tsn_task *task)
 	hist_init(&task->stats.proc_time_hist, 100, 1000);
 
 	stats_init(&task->stats.total_time, 31, "total time", NULL);
-	hist_init(&task->stats.total_time_hist, 100, 1000);
+	hist_init(&task->stats.total_time_hist, 100, 10000);
 
 	task->stats.sched_err_max = 0;
 }

@@ -17,14 +17,14 @@ PROFILE=1
 # PROFILE 1 - TSN application controller
 # PROFILE 2 - TSN application IO device
 
-APPS_CFG_FILE_ARRAY[1]=/etc/genavb/apps-tsn-network-controller.cfg
-GENAVB_CFG_FILE_ARRAY[1]=/etc/genavb/genavb-tsn.cfg
+APPS_CFG_FILE_1=/etc/genavb/apps-tsn-network-controller.cfg
+GENAVB_CFG_FILE_1=/etc/genavb/genavb-tsn.cfg
 
-APPS_CFG_FILE_ARRAY[2]=/etc/genavb/apps-tsn-network-iodevice.cfg
-GENAVB_CFG_FILE_ARRAY[2]=/etc/genavb/genavb-tsn.cfg
+APPS_CFG_FILE_2=/etc/genavb/apps-tsn-network-iodevice.cfg
+GENAVB_CFG_FILE_2=/etc/genavb/genavb-tsn.cfg
 
-APPS_CFG_FILE=${APPS_CFG_FILE_ARRAY[$PROFILE]}
-GENAVB_CFG_FILE=${GENAVB_CFG_FILE_ARRAY[$PROFILE]}
+eval "APPS_CFG_FILE=\${APPS_CFG_FILE_$PROFILE}"
+eval "GENAVB_CFG_FILE=\${GENAVB_CFG_FILE_$PROFILE}"
 
 # Internal only, configuration type, do not change
 TSN=1

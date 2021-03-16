@@ -1,9 +1,6 @@
-/*
- * Auto-generated file
- * Do not modify
- */
+/*\n * Auto-generated file\n * Do not modify\n */
 #define CONFIG_BRIDGE 1
-#define CONFIG_FSLPTP 1
+#define CONFIG_GPTP 1
 #define CONFIG_SRP 1
 #define CONFIG_MANAGEMENT 1
 #define CONFIG_API 1

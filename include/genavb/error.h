@@ -76,7 +76,8 @@ typedef enum {
 	GENAVB_ERR_CLOCK,		/**< Clock error */
 	GENAVB_ERR_TIMER,		/**< Timer error */
 	GENAVB_ERR_ST,			/**< QoS Scheduled Traffic error */
- 	GENAVB_ERR_CTRL_MAX
+	GENAVB_ERR_PTP_DOMAIN_INVALID,	/**< PTP domain invalid */
+	GENAVB_ERR_CTRL_MAX
 } genavb_return_codes_t;
 
 /** Return human readable error message from error code

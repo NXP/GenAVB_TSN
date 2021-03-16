@@ -1,15 +1,15 @@
 NXP Software Content Register
 
 Release Name:           genavb-linux-sdk
-Version:                GenAVB/TSN 3_2_2
-Date Created:           December-2020
-Release Location:       https://github.com/NXP/GenAVB_TSN
+Version:                GenAVB/TSN 3_4_2
+Date Created:           March-2021
+Release Location:       www.nxp.com
 Description:            GenAVB protocol stack, library, scripts, applications and Linux module for NXP MPUs/MCUs processors
 
 ----------------------------------------
 
-Package:                        ./bin
-Outgoing License:               LA_OPT_NXP_Software_License v17 October 2020 - Standard License
+Package:                        genavb-linux-sdk-*/bin
+Outgoing License:               LA_OPT_NXP_Software_License v19 February 2021 - Additional Distribution License granted - Section 2.3 applies
 License File:                   licenses/EULA.txt
 Package Category:               GenAVB/TSN Stack
 Type of content:                Binaries
@@ -17,8 +17,8 @@ Description and comments:       GenAVB/TSN protocol stack binaries
 Origin:                         NXP (Proprietary)
 
 
-Package:                        ./lib
-Outgoing License:               LA_OPT_NXP_Software_License v17 October 2020 - Standard License
+Package:                        genavb-linux-sdk-*/lib
+Outgoing License:               LA_OPT_NXP_Software_License v19 February 2021 - Additional Distribution License granted - Section 2.3 applies
 License File:                   licenses/EULA.txt
 Package Category:               GenAVB/TSN Stack
 Type of content:                Binaries
@@ -26,7 +26,7 @@ Description and comments:       GenAVB/TSN shared library
 Origin:                         NXP (Proprietary)
 
 
-Package:                        ./include
+Package:                        genavb-linux-sdk-*/include
 Outgoing License:               Open Source - BSD-3-Clause
 License File:                   licenses/BSD-3-Clause
 Package Category:               GenAVB/TSN Stack
@@ -35,7 +35,7 @@ Type of content:                Source code
 Origin:                         NXP (BSD-3-Clause)
 
 
-Package:                        ./apps ./public
+Package:                        genavb-linux-sdk-*/apps genavb-linux-sdk-*/public
 Outgoing License:               Open Source - BSD-3-Clause
 License File:                   licenses/BSD-3-Clause
 Package Category:               GenAVB/TSN Stack examples
@@ -44,7 +44,16 @@ Type of content:                Source code
 Origin:                         NXP (BSD-3-Clause)
 
 
-Package:                        ./bin ./scripts
+Package:                        genavb-linux-sdk-*/apps/linux/genavb-gui-controller/src/resources/developpers_Play.png
+                                genavb-linux-sdk-*/apps/linux/genavb-gui-controller/src/resources/developpers_Stop.png
+Outgoing License:               Free For Commercial Use
+Package Category:               UI
+Description and comments:       Icons used for media application controls
+Type of content:                PNG files
+Origin:                         www.iconfinder.com (Free For Commercial Use)
+
+
+Package:                        genavb-linux-sdk-*/bin genavb-linux-sdk-*/scripts
 Outgoing License:               Open Source - BSD-3-Clause
 License File:                   licenses/BSD-3-Clause
 Package Category:               GenAVB/TSN Stack
@@ -53,7 +62,7 @@ Type of content:                Source code
 Origin:                         NXP (BSD-3-Clause)
 
 
-Package:                        ./linux/modules
+Package:                        genavb-linux-sdk-*/linux/modules
 Outgoing License:               Open Source - GNU General Public License version 2
 License File:                   licenses/COPYING
 Package Category:               GenAVB/TSN Stack

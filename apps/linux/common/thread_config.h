@@ -1,43 +1,14 @@
 /*
  * Copyright 2016 Freescale Semiconductor, Inc.
- * All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *   Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- *    Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- *    Neither the name of NXP Semiconductors nor the
- *    names of its contributors may be used to endorse or promote products
- *    derived from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
- * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
-/**
- @file thread_config.h
- @brief This file defines configurations for thread management.
- @details
-
- Copyright 2016 Freescale Semiconductor, Inc.
- All Rights Reserved.
-*/
 #ifndef __THREAD_CONFIG_H__
 #define __THREAD_CONFIG_H__
 
 #include <pthread.h>
+#include <sys/epoll.h>
 #include "stats.h"
 /**
  * @addtogroup thread
@@ -78,6 +49,7 @@ typedef struct _THREAD_SLOT {
 	unsigned int max_timeout;	 /**< Maximum time since last poll before executing the timeout handler */
 	unsigned int timeout_count;	 /**< Time since last poll */
 	int (*timeout_handler) (void *data);     /**< Timeout handler */
+	void *sleep_data;                /**< parameters to pass to the sleep handler. */
 	pthread_mutex_t slot_lock;       /**< Thread slot mutex lock */
 } thr_thread_slot_t;
 
@@ -100,6 +72,7 @@ typedef struct _THREAD_THREAD_DATA {
 	char exit_flag;            /**< If this flag is set, the thread will try to terminate itself */
 	thr_thread_slot_t slots[MAX_THREAD_SLOTS];  /**< Array of data slots */
 	int num_slots;             /**< Number of used slots */
+	int (*sleep_handler)(struct _THREAD_THREAD_DATA *thread_ptr, struct epoll_event *recv_events); /**< function to call to put thread to sleep */
 
 	char is_first_poll;        /**< Indicate the first poll loop of thread handle */
 	unsigned int last_poll_time;   /**< Time of the last poll */

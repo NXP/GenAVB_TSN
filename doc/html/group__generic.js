@@ -35,7 +35,8 @@ var group__generic =
       [ "GENAVB_ERR_SOCKET_BUFLEN", "group__generic.html#gga031a0b2111b623fef60d707141a995d5af9d7556a6c4beb5c55bd84dc1ed6d5c8", null ],
       [ "GENAVB_ERR_CLOCK", "group__generic.html#gga031a0b2111b623fef60d707141a995d5a1739c5d69f15adb342ae30b6f389a7b9", null ],
       [ "GENAVB_ERR_TIMER", "group__generic.html#gga031a0b2111b623fef60d707141a995d5a9ce89bb96aedebacddbc4224d6da80f9", null ],
-      [ "GENAVB_ERR_ST", "group__generic.html#gga031a0b2111b623fef60d707141a995d5a0aba7e27df0626304fa465a64842f72f", null ]
+      [ "GENAVB_ERR_ST", "group__generic.html#gga031a0b2111b623fef60d707141a995d5a0aba7e27df0626304fa465a64842f72f", null ],
+      [ "GENAVB_ERR_PTP_DOMAIN_INVALID", "group__generic.html#gga031a0b2111b623fef60d707141a995d5acc887f18467e17040518cdf711266f88", null ]
     ] ],
     [ "genavb_strerror", "group__generic.html#gad2b5c88c6223884d276b9e793dccb504", null ]
 ];

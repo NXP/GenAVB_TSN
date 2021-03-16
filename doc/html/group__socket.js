@@ -5,7 +5,7 @@ var group__socket =
       [ "port", "group__socket.html#ad48e660c03cf1f4eb7d8838960dac91e", null ],
       [ "vlan_id", "group__socket.html#a297496ac20d1eb7a6a59c9ab68be3584", null ],
       [ "priority", "group__socket.html#acd9e23db3f7f377f72e97554a358a9e7", null ],
-      [ "u", "group__socket.html#ac6c4296b674f971c348c2bc492a95cba", null ]
+      [ "u", "group__socket.html#ae626117b1c6419ab383e0da3320cc5ef", null ]
     ] ],
     [ "net_address.u", "group__socket.html#unionnet__address_8u", [
       [ "avtp", "group__socket.html#ab7f9406e198ff6d04aa24f68ed80a132", null ],

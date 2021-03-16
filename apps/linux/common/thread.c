@@ -1,36 +1,8 @@
 /*
  * Copyright 2016 Freescale Semiconductor, Inc.
- * All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *   Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- *    Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- *    Neither the name of NXP Semiconductors nor the
- *    names of its contributors may be used to endorse or promote products
- *    derived from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
- * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * SPDX-License-Identifier: BSD-3-Clause
  */
-
-/**
- @file thread.c
- @brief      This file implements interfaces of thread management.
- @details    Copyright 2016 Freescale Semiconductor, Inc.
-*/
 
 #define _GNU_SOURCE             /* See feature_test_macros(7) */
 #include <sched.h>
@@ -45,7 +17,8 @@
 #include "time.h"
 
 #define THREAD_STATS_PERIOD_NS	  (10llu * NSECS_PER_SEC)
-#define THREAD_HANDLER_TIMEOUT_NS (100llu * NSECS_PER_MSEC)
+#define THREAD_HANDLER_TIMEOUT_MS (100llu)
+#define THREAD_HANDLER_TIMEOUT_NS (THREAD_HANDLER_TIMEOUT_MS * NSECS_PER_MSEC)
 
 static pthread_mutex_t thread_mutex = PTHREAD_MUTEX_INITIALIZER;
 
@@ -119,6 +92,90 @@ static void thread_slot_init_data(thr_thread_t *thread);
  */
 static void thread_slot_deinit_data(thr_thread_t *thread);
 
+/**
+ * @brief      Sleep handler based on epoll_wait
+ *
+ * @param      thread  The thread pointer
+ *
+ * @return     n >= 0 if n events received.
+ *             0 if call interrupted.
+ *             -1 on other errors.
+ */
+int thread_sleep_epoll(thr_thread_t *thread_ptr, struct epoll_event *recv_events)
+{
+	int n;
+
+	// Wait fd events for each 100ms
+	n = epoll_wait(thread_ptr->poll_fd, recv_events, thread_ptr->max_slots, THREAD_HANDLER_TIMEOUT_MS);
+	if (n < 0) {
+		if (errno == EINTR)
+			return 0;
+		else {
+			// Error occurs
+			ERR("epoll_wait(%d) failed: %s", thread_ptr->poll_fd, strerror(errno));
+			return -1;
+		}
+	} else
+		return n;
+}
+
+int thread_sleep_nanosleep(thr_thread_t *thread_ptr, struct epoll_event *recv_events)
+{
+	int i, rc;
+	int total_slots = 0;
+	struct thread_sleep_nanosleep_data *nsleep;
+	uint64_t sched_next = UINT64_MAX;
+	struct timespec next_time;
+
+	for (i = 0; i < thread_ptr->max_slots; i++) {
+		if (thread_ptr->slots[i].is_used) {
+			nsleep = (struct thread_sleep_nanosleep_data *)thread_ptr->slots[i].sleep_data;
+			if (nsleep->is_armed && (nsleep->next <= sched_next)) {
+				recv_events[total_slots].data.ptr = (void *)&thread_ptr->slots[i];
+				recv_events[total_slots].events = EPOLLIN; // needed to make sure the time-out count gets reset
+
+				if (nsleep->next == sched_next)
+					total_slots++;
+				else {
+					sched_next = nsleep->next;
+					total_slots = 1;
+				}
+			}
+		}
+	}
+
+	DBG("total_slots(%d) sched_next(%" PRIu64 ")", total_slots, sched_next);
+	if (total_slots == 0) { // Wait 100ms if no scheduled wake-up
+		next_time.tv_sec = 0;
+		next_time.tv_nsec = THREAD_HANDLER_TIMEOUT_NS;
+		rc = clock_nanosleep(CLOCK_REALTIME, 0, &next_time, NULL);
+
+	} else {
+		next_time.tv_sec = sched_next / (NSECS_PER_SEC);
+		next_time.tv_nsec = sched_next % (NSECS_PER_SEC);
+		rc = clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, &next_time, NULL);
+	}
+
+	if (rc > 0) {
+		if (rc == EINTR)
+			return 0;
+		else {
+			// Error occurs
+			ERR("clock_nanosleep for time (%" PRIu64 ") failed.", sched_next);
+			return -1;
+		}
+	} else {
+		// make sure we don't get woken up again for previous events
+		for (i = 0; i < total_slots; i++) {
+			thr_thread_slot_t *slot = recv_events[i].data.ptr;
+			nsleep = (struct thread_sleep_nanosleep_data *)slot->sleep_data;
+			nsleep->is_armed = 0;
+		}
+
+		return total_slots;
+	}
+}
+
 int thread_init(void)
 {
 	int count;
@@ -146,6 +203,9 @@ int thread_init(void)
 		thread_ptr->last_poll_time = 0;
 		thread_ptr->exit_flag = 0;
 		thread_ptr->num_slots = 0;
+
+		// Default sleep handler
+		thread_ptr->sleep_handler = thread_sleep_epoll;
 
 		// Slot data initialization
 		thread_slot_init_data(thread_ptr);
@@ -281,17 +341,13 @@ static void *s_data_thread_handle(void *param)
 	while (!thread_ptr->exit_flag) {
 		int n, i, res;
 
-		// Wait fd events for each 100ms
-		n = epoll_wait(thread_ptr->poll_fd, recv_events, thread_ptr->max_slots, 100);
+		n = thread_ptr->sleep_handler(thread_ptr, recv_events);
+
 		if (n < 0) {
-			if (errno == EINTR)
-				continue;
-			else {
-				// Error occurs
-				ERR("%d - epoll_wait(%d) failed: %s", thread_index, thread_ptr->poll_fd, strerror(errno));
-				final_result = -1;
-				goto lb_exit;
-			}
+			// Error occurs
+			ERR("%d - sleep_handler failed", thread_index);
+			final_result = -1;
+			goto lb_exit;
 		}
 
 		res = clock_gettime(CLOCK_MONOTONIC, &ts);
@@ -317,13 +373,14 @@ static void *s_data_thread_handle(void *param)
 			ERR("clock_gettime() failed: %s", strerror(errno));
 		}
 
-		if (n == 0) {
-			stats_update(&thread_ptr->stats.epoll_event, n);
-			continue;
-		}
-
-		// Update stats
+		/* Update events stats */
 		stats_update(&thread_ptr->stats.epoll_event, n);
+
+		/* If we got interrupted or timedout, loop again */
+		if (n == 0)
+			continue;
+
+
 		if (0 != res) {
 			ERR("could not get clock real-time, error: %s", strerror(errno));
 		} else {
@@ -427,16 +484,23 @@ static void thread_check_timeout_slots(thr_thread_t *thread, unsigned int timeou
 
 }
 
-int thread_slot_add(int capabilities, int fd, unsigned int events, void *data,
-		    int (*handler)(void *data, unsigned int events),
-		    int (*timeout_handler)(void *data),
-		    int max_timeout, thr_thread_slot_t **slot)
+int __thread_slot_add(int capabilities, int fd, unsigned int events, void *data,
+		      int (*handler)(void *data, unsigned int events),
+		      int (*timeout_handler)(void *data),
+		      int max_timeout, thr_thread_slot_t **slot,
+		      int (*sleep_handler)(thr_thread_t *thread_ptr, struct epoll_event *recv_events),
+		      void *sleep_data)
 {
 	thr_thread_t *thread_ptr = NULL;
 	thr_thread_slot_t *thread_slot_ptr = NULL;
 	int i;
 	int tmp;
 	struct epoll_event event;
+
+	if ((events != 0) && (sleep_handler != thread_sleep_epoll)) {
+		ERR("Cannot use both epoll and custom sleep handler");
+		return -1;
+	}
 
 	// Lock data
 	pthread_mutex_lock(&thread_mutex);
@@ -447,6 +511,11 @@ int thread_slot_add(int capabilities, int fd, unsigned int events, void *data,
 
 		if (!thread_check_capability_match(cur_thread, capabilities)) {
 			// Thread does not match capabilities
+			continue;
+		}
+
+		if ((cur_thread->num_slots != 0) && (cur_thread->sleep_handler != sleep_handler)) {
+			//Thread already actively using another sleep handler
 			continue;
 		}
 
@@ -480,7 +549,6 @@ int thread_slot_add(int capabilities, int fd, unsigned int events, void *data,
 	DBG("Update slot (%p) info, fd: %d, data: %p, handler: %p", thread_slot_ptr, fd, data, handler);
 	// Update slot information
 	thread_slot_ptr->is_used = 1;
-	thread_slot_ptr->fd = fd;
 	thread_slot_ptr->data = data;
 	thread_slot_ptr->handler = handler;
 	thread_slot_ptr->timeout_count = 0;
@@ -494,28 +562,43 @@ int thread_slot_add(int capabilities, int fd, unsigned int events, void *data,
 	thread_ptr->num_slots++;
 	*slot = thread_slot_ptr;
 
-	// add slot into epoll monitor
-	event.data.fd = fd;
-	event.data.ptr = thread_slot_ptr;
-	event.events = (events & (EPOLLIN | EPOLLOUT)) | EPOLLERR | EPOLLHUP;
+	if (events != 0) {
+		// add slot into epoll monitor
+		thread_slot_ptr->fd = fd;
+		event.data.fd = fd;
+		event.data.ptr = thread_slot_ptr;
+		event.events = (events & (EPOLLIN | EPOLLOUT)) | EPOLLERR | EPOLLHUP;
 
-	DBG("Add fd %d into epoll %d", fd, thread_ptr->poll_fd);
-	if (-1 == epoll_ctl(thread_ptr->poll_fd, EPOLL_CTL_ADD, fd, &event)) {
-		// epoll add fd error. Clear is_used flag and return NULL
-		ERR("epoll_ctl failed, %s", strerror(errno));
-		thread_slot_ptr->is_used = 0;
-		thread_ptr->num_slots --;
-		*slot = NULL;
-		pthread_mutex_unlock(&thread_mutex);
-		return -1;
+		DBG("Add fd %d into epoll %d", fd, thread_ptr->poll_fd);
+		if (-1 == epoll_ctl(thread_ptr->poll_fd, EPOLL_CTL_ADD, fd, &event)) {
+			// epoll add fd error. Clear is_used flag and return NULL
+			ERR("epoll_ctl failed, %s", strerror(errno));
+			thread_slot_ptr->is_used = 0;
+			thread_ptr->num_slots--;
+			*slot = NULL;
+			pthread_mutex_unlock(&thread_mutex);
+			return -1;
+		}
+		INF("Add fd %d into epoll of thread %p", fd, thread_ptr);
+	} else {
+		thread_ptr->sleep_handler = sleep_handler;
+		thread_slot_ptr->sleep_data = sleep_data;
+		INF("Enabled slot %p of thread %p", thread_slot_ptr, thread_ptr);
 	}
-
 	thread_slot_ptr->is_enabled = 1;
-	INF("Add fd %d into epoll of thread %p", fd, thread_ptr);
 
 	pthread_mutex_unlock(&thread_mutex);
 
 	return 0;
+}
+
+int thread_slot_add(int capabilities, int fd, unsigned int events, void *data,
+		    int (*handler)(void *data, unsigned int events),
+		    int (*timeout_handler)(void *data),
+		    int max_timeout, thr_thread_slot_t **slot)
+{
+	return __thread_slot_add(capabilities, fd, events, data,
+				 handler, timeout_handler, max_timeout, slot, thread_sleep_epoll, NULL);
 }
 
 int thread_slot_set_events(thr_thread_slot_t *slot, int enable, unsigned int req_events)
@@ -532,20 +615,20 @@ int thread_slot_set_events(thr_thread_slot_t *slot, int enable, unsigned int req
 		pthread_mutex_unlock(&thread_mutex);
 		return -1;
 	}
-	
+
 	if(enable) {
-		
+
 		if (slot->is_enabled) {
 			pthread_mutex_unlock(&thread_mutex);
 			return 0;
 		}
-		
+
 		// add slot into epoll monitor
-		
+
 		event.data.fd = slot->fd;
 		event.data.ptr = slot;
 		event.events = (req_events & (EPOLLIN | EPOLLOUT)) | EPOLLERR | EPOLLHUP;
-	
+
 		DBG("Add fd %d into epoll %d", slot->fd, thread->poll_fd);
 		if (-1 == epoll_ctl(thread->poll_fd, EPOLL_CTL_ADD, slot->fd, &event)) {
 			// epoll add fd error. Clear is_used flag and return NULL
@@ -553,8 +636,8 @@ int thread_slot_set_events(thr_thread_slot_t *slot, int enable, unsigned int req
 			pthread_mutex_unlock(&thread_mutex);
 			return -1;
 		}
-	
-		slot->is_enabled = 1;		
+
+		slot->is_enabled = 1;
 	} else {
 
 		if (!slot->is_enabled) {

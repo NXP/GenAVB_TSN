@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NXP
+ * Copyright 2018-2021 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -140,11 +140,25 @@ struct fgptp_port_config {
 	uint8_t ptpPortEnabled;
 };
 
-typedef enum {
-	CLOCK_ADJUST_MODE_NONE = 0,	/**< Target clock adjustments have no effect on the local clock */
-	CLOCK_ADJUST_MODE_RATIO,	/**< Target clock ratio adjustments affect the local clock */
-	CLOCK_ADJUST_MODE_OFFSET_RATIO	/**< Target clock offset and ratio adjustments affect the local clock */
-} clock_adjust_mode_t;
+/**
+ * \ingroup init
+ * GPTP domain configuration
+ */
+struct fgptp_domain_config {
+	/* General params */
+	int domain_number;
+
+	unsigned int clock_target;
+	unsigned int clock_source;
+
+	/* Grandmaster params */
+	uint8_t gmCapable;	/* set to 1 if this device is grandmaster capable */
+	uint8_t priority1;
+	uint8_t priority2;
+	uint8_t clockClass;
+	uint8_t clockAccuracy;
+	uint16_t offsetScaledLogVariance;
+};
 
 /**
  * \ingroup init
@@ -159,24 +173,12 @@ struct fgptp_config {
 	unsigned int logical_port_list[CFG_MAX_NUM_PORT];
 
 	unsigned int clock_local;
-	unsigned int clock_target[CFG_MAX_GPTP_DOMAINS];
-	unsigned int clock_source[CFG_MAX_GPTP_DOMAINS];
-
-	clock_adjust_mode_t clock_adjust_mode;
 
 	uint64_t gm_id; /* grand master id used in case of static slave configuration or resulting from bmca */
 	uint64_t neighborPropDelayThreshold; /*expressed in ns. The propagation time threshold, above which a port is not considered capable of participating in the IEEE 802.1AS protocol.*/
 	unsigned int rsync; /* set to 1 to enable rsync feature on slave side*/
 	unsigned int rsync_interval; /* defines rsync packet interval in ms*/
 	unsigned int statsInterval; /* defines the interval in second between statistics output */
-
-	/* Grandmaster params */
-	uint8_t gmCapable;	/* set to 1 if this device is grandmaster capable */
-	uint8_t priority1;
-	uint8_t priority2;
-	uint8_t clockClass;
-	uint8_t clockAccuracy;
-	uint16_t offsetScaledLogVariance;
 
 	/* Automotive profile params */
 	uint8_t neighborPropDelay_mode;					/* set to 1 if predefined pdelay mechanism is used. 0 means relying on standard pdelay exchange */
@@ -197,6 +199,9 @@ struct fgptp_config {
 
 	/* per port settings */
 	struct fgptp_port_config port_cfg[CFG_MAX_NUM_PORT];
+
+	/* per domain settings */
+	struct fgptp_domain_config domain_cfg[CFG_MAX_GPTP_DOMAINS];
 };
 
 /**

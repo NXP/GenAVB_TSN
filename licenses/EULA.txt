@@ -1,4 +1,4 @@
-LA_OPT_NXP_Software_License v17 October 2020 
+LA_OPT_NXP_Software_License v19 February 2021 
 IMPORTANT.  Read the following NXP Software License Agreement ("Agreement") completely. By selecting the "I Accept" button at the end of this page, or by downloading, installing, or using the Licensed Software, you indicate that you accept the terms of the Agreement and you acknowledge that you have the authority, for yourself or on behalf of your company, to bind your company to these terms. You may then download or install the file. In the event of a conflict between the terms of this Agreement and any license terms and conditions for NXP's proprietary software embedded anywhere in the Licensed Software file, the terms of this Agreement shall control.  If a separate license agreement for the Licensed Software has been signed by you and NXP, then that agreement shall govern your use of the Licensed Software and shall supersede this Agreement.
 
 NXP SOFTWARE LICENSE AGREEMENT
@@ -66,8 +66,9 @@ Otherwise, you agree to grant an irrevocable, worldwide, and perpetual license t
                                	5656 AG Eindhoven
                               	 The Netherlands
                              	ATTN: Legal Department
- 
-          You:              The address provided at registration will be used.
+ 	         
+                         You:              The address provided at registration will be used.
+
 23.        RELATIONSHIP OF THE PARTIES.     The parties are independent contractors. Nothing in this Agreement will be construed to create any partnership, joint venture, or similar relationship. Neither party is authorized to bind the other to any obligations with third parties.
 24.        SUCCESSION AND ASSIGNMENT.   This Agreement will be binding upon and inure to the benefit of the parties and their permitted successors and assigns.  You may not assign this Agreement, or any part of this Agreement, without the prior written approval of NXP, which approval will not be unreasonably withheld or delayed. NXP may assign this Agreement, or any part of this Agreement, in its sole discretion. 
 25.	PRIVACY. By agreeing to this Agreement and/or utilizing the Licensed Software, Licensee consents to use of certain personal information, including but not limited to name, email address, and location, for the purpose of NXP’s internal analysis regarding future software offerings.  NXP’s complete Privacy Statement can be found at: https://www.nxp.com/company/our-company/about-nxp/privacy-statement:PRIVACYPRACTICES.
@@ -83,6 +84,8 @@ Other License Grants and Restrictions:
 The Licensed Software may include some or all of the following software, which is either 1) Third Party Software or 2) NXP proprietary software subject to different terms than those in the Agreement. If the Software Content Register that accompanies the Licensed Software identifies any of the following Third Party Software or specific components of the NXP proprietary software, the following terms apply to the extent they deviate from the terms in the Agreement:
 
 Amazon: Use of the Amazon software constitutes your acceptance of the terms of the Amazon Program Materials License Agreement (including the AVS Component Schedule, if applicable), located at https://developer.amazon.com/support/legal/pml.  All Amazon software is hereby designated "Amazon confidential".  Amazon is a third-party beneficiary to this Agreement with respect to the Amazon software.
+
+Amazon Web Services, Inc.: AWS is an intended third-party beneficiary to this Agreement with respect to the Greengrass software. If you have an account with AWS that is not in good standing, you may not download, install, use or distribute the Greengrass software. You will comply with all instructions and requirements in any integration documents, guidelines, or other documentation AWS provides. The license to the Greengrass software will immediately terminate without notice if you (a) fail to comply with this Agreement or any other agreement with AWS, (b) fail to make timely payment for any AWS service, (c) fail to implement AWS updates, or (d) bring any action for intellectual property infringement against AWS or any AWS customer utilizing AWS services.  Any dispute or claim relating to your use of the Greengrass software will be resolved by binding arbitration, rather than in court, except that you may assert claims in small claims court if your claims qualify.
 
 Amphion Semiconductor Ltd.: Distribution of Amphion software must be a part of, or embedded within, Authorized Systems that include an Amphion Video Decoder.  
 
@@ -104,7 +107,7 @@ CSR: Use of Cambridge Silicon Radio, Inc. ("CSR") software is limited to evaluat
 
 Crank: Use of Crank Software Inc. software is limited to evaluation and demonstration only. Permitted distributions must be similarly limited. Further rights must be obtained directly from Crank Software Inc.
 
-Cypress Semiconductor Corporation: WWD RTOS source code may only be used in accordance with the Cypress IOT Community License Agreement located at https://community.cypress.com/terms-and-conditions!input.jspa?displayOnly=true.
+Cypress Semiconductor Corporation: WWD RTOS source code may only be used in accordance with the Cypress IOT Community License Agreement obtained directly from Cypress Semiconductor Corporation. 
 
 Embedded Systems Academy GmbH (EmSA):  Any use of Micro CANopen Plus is subject to the acceptance of the license conditions described in the LICENSE.INFO file distributed with all example projects and in the documentation and the additional clause described below.
 Clause 1: Micro CANopen Plus may not be used for any competitive or comparative purpose, including the publication of any form of run time or compile time metric, without the express permission of EmSA.

@@ -1,0 +1,40 @@
+################################################################
+#                                                              #
+# FGPTP domain configuration file.                             #
+# It is made of different sections delimited with [XXXX] tags. #
+# Each section can contain multiple key/value pairs.           #
+#                                                              #
+################################################################
+
+
+################################################################
+#        gPTP Domain 1 Settings                                #
+################################################################
+
+[FGPTP_GENERAL]
+# gPTP domain assignment is a per-instance parameter (default is '-1').
+# Use value '-1' (or any string) to disable an instance's gPTP domain.
+# e.g.:
+# domain_number = -1
+# domain_number = 20
+domain_number = -1
+
+[FGPTP_GM_PARAMS]
+# Set if the device has grandmaster capability. Ignored in automotive profile if the port is SLAVE.
+gmCapable = 1
+
+# Set the priority1 value of this clock
+priority1 = 246
+
+# Set the priority2 value of this clock
+priority2 = 248
+
+# Set the class value of this clock
+clockClass = 248
+
+# Set the accuracy value of this clock
+clockAccuracy = 0xfe
+
+# Set the offset scaled log variance value of this clock
+offsetScaledLogVariance = 17258
+

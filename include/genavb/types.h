@@ -64,8 +64,13 @@ typedef enum {
 	GENAVB_SOCKF_RAW = 0x04	      /**< Raw socket (only applies to transmit socket) */
 } genavb_sock_f_t;
 
+/**
+ * \ingroup timer
+ * Useful flags:
+ */
 typedef enum {
-	GENAVB_TIMERF_ABS = 0x01,
+	GENAVB_TIMERF_ABS = 0x01, /**< Interpret provided time value as absolute */
+	GENAVB_TIMERF_PPS = 0x02  /**< Request or enable PPS signal output */
 } genavb_timer_f_t;
 
 #ifndef NULL

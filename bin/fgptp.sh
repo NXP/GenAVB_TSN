@@ -4,8 +4,8 @@ PACKAGE=BRIDGE
 
 . "/etc/genavb/config"
 
-PTP_APP="fslptp"
-PTP_APP_BR="fslptp-br"
+PTP_APP="fgptp"
+PTP_APP_BR="fgptp-br"
 PTP_CFG_FILE=/etc/genavb/fgptp.cfg
 PTP_CFG_FILE_BR=/etc/genavb/fgptp-br.cfg
 PIDFILE=/var/run/$PTP_APP.pid
@@ -158,7 +158,7 @@ load_genavb_module()
 
 start_gptp_stack()
 {
-	echo "Starting fslptp endpoint stack"
+	echo "Starting fgptp endpoint stack"
 
 	gptp_ipc_nodes
 	mac_service_ipc_nodes
@@ -205,7 +205,7 @@ start_gptp_stack()
 
 start_gptp_stack_br()
 {
-	echo "Starting fslptp bridge stack"
+	echo "Starting fgptp bridge stack"
 
 	bridge_ipc_nodes
 
@@ -242,7 +242,7 @@ start_gptp_stack_br()
 
 stop_gptp_stack()
 {
-	echo "Stopping fslptp endpoint stack"
+	echo "Stopping fgptp endpoint stack"
 
 	if [ -f $PIDFILE ]; then
 		kill "$(cat $PIDFILE)" > /dev/null 2>&1
@@ -252,7 +252,7 @@ stop_gptp_stack()
 
 stop_gptp_stack_br()
 {
-	echo "Stopping fslptp bridge stack"
+	echo "Stopping fgptp bridge stack"
 
 	if [ -f $PIDFILE_BR ]; then
 		kill "$(cat $PIDFILE_BR)" > /dev/null 2>&1
@@ -280,14 +280,14 @@ start_ep()
 {
 	load_genavb_module
 
-	if [ $PACKAGE = "ENDPOINT" ] || [ $PACKAGE = "HYBRID" ]; then
+	if [ $PACKAGE = "ENDPOINT" ] || [ $PACKAGE = "HYBRID" ] || [ $PACKAGE = "ENDPOINT_GPTP" ]; then
 		start_gptp_stack
 	fi
 }
 
 stop_ep()
 {
-	if [ $PACKAGE = "ENDPOINT" ] || [ $PACKAGE = "HYBRID" ]; then
+	if [ $PACKAGE = "ENDPOINT" ] || [ $PACKAGE = "HYBRID" ] || [ $PACKAGE = "ENDPOINT_GPTP" ]; then
 		stop_gptp_stack
 	fi
 }
@@ -300,7 +300,7 @@ start()
 		start_gptp_stack_br
 	fi
 
-	if [ $PACKAGE = "ENDPOINT" ] || [ $PACKAGE = "HYBRID" ]; then
+	if [ $PACKAGE = "ENDPOINT" ] || [ $PACKAGE = "HYBRID" ] || [ $PACKAGE = "ENDPOINT_GPTP" ]; then
 		start_gptp_stack
 	fi
 }
@@ -311,7 +311,7 @@ stop()
 		stop_gptp_stack_br
 	fi
 
-	if [ $PACKAGE = "ENDPOINT" ] || [ $PACKAGE = "HYBRID" ]; then
+	if [ $PACKAGE = "ENDPOINT" ] || [ $PACKAGE = "HYBRID" ] || [ $PACKAGE = "ENDPOINT_GPTP" ]; then
 		stop_gptp_stack
 	fi
 }

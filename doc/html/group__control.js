@@ -127,10 +127,10 @@ var group__control =
       [ "error_response", "group__control.html#a63bfc0233f258c211e60281ac3762894", null ]
     ] ],
     [ "genavb_msg_gm_get_status", "group__control.html#structgenavb__msg__gm__get__status", [
-      [ "domain", "group__control.html#a1cfd6b533e07f403c27e670450afdf6b", null ]
+      [ "domain", "group__control.html#a4cb1e14fe2df76d43bffb71be223aa87", null ]
     ] ],
     [ "genavb_msg_gm_status", "group__control.html#structgenavb__msg__gm__status", [
-      [ "domain", "group__control.html#a0c9601528f08d17e1a2cda4344cbf582", null ],
+      [ "domain", "group__control.html#a55ec29981a043a7c11969e48a5881624", null ],
       [ "gm_id", "group__control.html#a7611124373488996991775f13bd64e4c", null ]
     ] ],
     [ "genavb_msg_gptp", "group__control.html#uniongenavb__msg__gptp", [

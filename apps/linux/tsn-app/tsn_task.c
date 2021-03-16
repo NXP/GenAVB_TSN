@@ -15,7 +15,6 @@
 #include "tsn_task.h"
 #include "../common/log.h"
 #include "../common/time.h"
-#include "../common/timer.h"
 #include "../common/helpers.h"
 
 void tsn_task_stats_init(struct tsn_task *task)
@@ -27,40 +26,40 @@ void tsn_task_stats_init(struct tsn_task *task)
 	hist_init(&task->stats.proc_time_hist, 100, 1000);
 
 	stats_init(&task->stats.total_time, 31, "total time", NULL);
-	hist_init(&task->stats.total_time_hist, 100, 10000);
+	hist_init(&task->stats.total_time_hist, 100, 1000);
 
 	task->stats.sched_err_max = 0;
 }
 
-void tsn_task_stats_start(struct tsn_task *task, int count)
+void tsn_task_stats_start(struct tsn_task *task, int count, uint64_t now)
 {
-	uint64_t now = 0;
 	int32_t sched_err;
 
 	task->sched_time += (count * task->params->task_period_ns);
 
 	task->stats.sched += count;
 
-	genavb_clock_gettime64(task->params->clk_id, &now);
+	if (task->stats.stats_valid) {
+		sched_err = now - task->sched_time;
 
-	sched_err = now - task->sched_time;
+		if (sched_err > SCHEDULE_LATENCY_THRESHOLD)
+			task->stats.sched_late++;
 
-	if (sched_err > (task->params->task_period_ns / 2))
-		task->stats.sched_late++;
+		if (count > 1)
+			task->stats.sched_missed += (count - 1);
 
-	if (count > 1)
-		task->stats.sched_missed += (count - 1);
+		if (sched_err < 0) {
+			task->stats.sched_early++;
+			sched_err = -sched_err;
+		}
 
-	if (sched_err < 0) {
-		task->stats.sched_early++;
-		sched_err = -sched_err;
-	}
+		stats_update(&task->stats.sched_err, sched_err);
+		hist_update(&task->stats.sched_err_hist, sched_err);
 
-	stats_update(&task->stats.sched_err, sched_err);
-	hist_update(&task->stats.sched_err_hist, sched_err);
-
-	if (sched_err > task->stats.sched_err_max)
-		task->stats.sched_err_max = sched_err;
+		if (sched_err > task->stats.sched_err_max)
+			task->stats.sched_err_max = sched_err;
+	} else
+		task->stats.stats_valid = true;
 
 	task->sched_now = now;
 }
@@ -71,16 +70,18 @@ void tsn_task_stats_end(struct tsn_task *task)
 	int32_t proc_time;
 	int32_t total_time;
 
-	genavb_clock_gettime64(task->params->clk_id, &now);
+	if (task->stats.stats_valid) {
+		genavb_clock_gettime64(task->params->clk_id, &now);
 
-	proc_time = now - task->sched_now;
-	total_time = now - task->sched_time;
+		proc_time = now - task->sched_now;
+		total_time = now - task->sched_time;
 
-	stats_update(&task->stats.proc_time, proc_time);
-	hist_update(&task->stats.proc_time_hist, proc_time);
+		stats_update(&task->stats.proc_time, proc_time);
+		hist_update(&task->stats.proc_time_hist, proc_time);
 
-	stats_update(&task->stats.total_time, total_time);
-	hist_update(&task->stats.total_time_hist, total_time);
+		stats_update(&task->stats.total_time, total_time);
+		hist_update(&task->stats.total_time_hist, total_time);
+	}
 }
 
 void tsn_task_stats_print(struct tsn_task *task)
@@ -313,8 +314,6 @@ static void tsn_net_st_oper_config_print(struct tsn_task *task)
 int tsn_task_start(struct tsn_task *task)
 {
 	uint64_t now, start_time;
-	time_t start_secs;
-	unsigned int start_nsecs;
 
 	if (genavb_clock_gettime64(task->params->clk_id, &now) != GENAVB_SUCCESS) {
 		ERR("genavb_clock_gettime64() error\n");
@@ -327,11 +326,8 @@ int tsn_task_start(struct tsn_task *task)
 	/* Align on cycle time and add offset */
 	start_time = (start_time / task->params->task_period_ns) * task->params->task_period_ns + task->params->task_period_offset_ns;
 
-	start_secs = start_time / (NSECS_PER_SEC);
-	start_nsecs = start_time - ((uint64_t)start_secs * NSECS_PER_SEC);
-
-	if (start_timerfd_periodic_abs(task->timer_fd, start_secs, start_nsecs, 0, task->params->task_period_ns) < 0) {
-		ERR("start_timerfd_periodic_abs() error\n");
+	if (tsn_timer_start(task->timer, start_time, task->params->task_period_ns) < 0) {
+		ERR("tsn timer start error\n");
 		goto err;
 	}
 
@@ -339,6 +335,7 @@ int tsn_task_start(struct tsn_task *task)
 	 * number of expirations. So here it's set one period before */
 	task->sched_time = start_time - task->params->task_period_ns;
 
+	DBG("now(%" PRIu64 ") sched_time(%" PRIu64 ") sched_next%" PRIu64 ")", now, task->sched_time, task->nsleep.next);
 	//tsn_net_st_config_enable(task, now);
 
 	return 0;
@@ -349,7 +346,7 @@ err:
 
 void tsn_task_stop(struct tsn_task *task)
 {
-	stop_timerfd(task->timer_fd);
+	tsn_timer_stop(task->timer);
 }
 
 #ifdef SRP_RESERVATION
@@ -629,21 +626,13 @@ int tsn_task_register(struct tsn_task **task, struct tsn_task_params *params,
 
 	tsn_task_stats_init(*task);
 
-	(*task)->timer_fd = create_timerfd_periodic_abs(CLOCK_REALTIME);
-	if ((*task)->timer_fd < 0) {
-		ERR("create_timerfd_periodic_abs() failed\n");
+	(*task)->timer = tsn_timer_init((*task)->params->timer_type, THR_CAP_TSN_LOOP, ctx, main_loop);
+	if ((*task)->timer == NULL) {
+		ERR("timer registration() failed\n");
 		goto net_exit;
 	}
 
-	if (thread_slot_add(THR_CAP_TSN_LOOP, (*task)->timer_fd, EPOLLIN, ctx, main_loop, NULL, 0, &(*task)->slot) < 0) {
-		ERR("thread_slot_add() failed\n");
-		goto close_timerfd;
-	}
-
 	return 0;
-
-close_timerfd:
-	close((*task)->timer_fd);
 
 net_exit:
 	tsn_task_net_exit(*task);
@@ -658,6 +647,8 @@ err:
 void tsn_task_deregister(struct tsn_task *task)
 {
 	tsn_task_net_exit(task);
-	close(task->timer_fd);
+
+	tsn_timer_exit(task->timer);
+
 	free(task);
 }

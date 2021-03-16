@@ -578,17 +578,6 @@ set_irq_priority_and_affinity()
 			echo "!!! WARNING: There is no matching ethernet interrupt!"
 		fi
 	fi
-
-	# ksoftirqd on TSN application's CPU
-	if [ $TSN -eq 1 ]; then
-		ksoft_pid=$(pgrep -f "ksoftirqd/$MEDIA_APP_CPU_CORE")
-		if [ -n "$ksoft_pid" ]; then
-			echo "Setting ksoftirqd/$MEDIA_APP_CPU_CORE priority to $KSOFT_PRIO"
-			chrt -pf $KSOFT_PRIO $ksoft_pid
-		else
-			echo "!!! WARNING: Setting ksoftirqd/$MEDIA_APP_CPU_CORE priority to $KSOFT_PRIO failed!"
-		fi
-	fi
 }
 
 # Disable/Enable the cpuidle state, for older kernels
@@ -849,7 +838,6 @@ MACHINE=$(detect_machine)
 ITF=eth0
 IRQ_PRIO=60
 KTHREAD_PRIO=60
-KSOFT_PRIO=10
 
 SET_AFFINITY=1
 FORCE_100M=1

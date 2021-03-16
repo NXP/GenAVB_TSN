@@ -47,7 +47,7 @@ struct __attribute__ ((packed)) ptp_port_identity {
 };
 
 /**
- * PTP Message Header (802.1as - Table 10.4)
+ * PTP Message Header (802.1AS - Table 10.4)
  * \ingroup protocol
  */
 struct __attribute__ ((packed)) ptp_hdr {

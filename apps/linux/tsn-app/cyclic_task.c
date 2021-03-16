@@ -160,27 +160,19 @@ static int main_cyclic(void *data, unsigned int events)
 	struct tsn_task *task = c_task->task;
 	unsigned int num_sched_stats = CYCLIC_STAT_PERIOD_SEC * (NSECS_PER_SEC / task->params->task_period_ns);
 	uint64_t n_time;
-	ssize_t rc;
+	uint64_t now;
+	int rc = -1;
 
-	rc = read(task->timer_fd, &n_time, sizeof(n_time));
-	if (rc < 0) {
-		if (c_task->loop_func)
-			c_task->loop_func(c_task->ctx, -1);
-
-		cyclic_task_stop(c_task);
-		cyclic_task_start(c_task);
-
-#ifdef ECANCELED
-		if (rc == ECANCELED)
-			task->stats.clock_discont++;
-		else
-#endif
-			task->stats.clock_err++;
-
-		goto exit;
+	if (genavb_clock_gettime64(task->params->clk_id, &now) < 0) {
+		ERR("genavb_clock_gettime64() error\n");
+		goto timer_err;
 	}
 
-	tsn_task_stats_start(task, (int)n_time);
+	rc = tsn_timer_check(task->timer, now, &n_time);
+	if (rc < 0)
+		goto timer_err;
+
+	tsn_task_stats_start(task, (int)n_time, now);
 
 	/*
 	 * Receive, frames should be available
@@ -199,8 +191,24 @@ static int main_cyclic(void *data, unsigned int events)
 		tsn_stats_dump(task);
 		cyclic_stats_dump(c_task);
 	}
-exit:
+
 	return 0;
+
+timer_err:
+	if (c_task->loop_func)
+		c_task->loop_func(c_task->ctx, -1);
+
+	cyclic_task_stop(c_task);
+	cyclic_task_start(c_task);
+
+#ifdef ECANCELED
+	if (rc == ECANCELED)
+		task->stats.clock_discont++;
+	else
+#endif
+		task->stats.clock_err++;
+
+	return rc;
 }
 
 void cyclic_task_set_period(struct cyclic_task *c_task, unsigned int period_ns)

@@ -14,7 +14,7 @@ struct network_only_ctx {
 	struct cyclic_task *c_task;
 };
 
-struct network_only_ctx *network_only_init(unsigned int role, unsigned int period_ns, unsigned int num_peers);
+struct network_only_ctx *network_only_init(unsigned int role, unsigned int period_ns, unsigned int num_peers, unsigned int timer_type);
 void network_only_exit(void *data);
 void network_only_stats_handler(void *data);
 

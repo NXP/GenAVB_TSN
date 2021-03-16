@@ -11,7 +11,7 @@ var group__stream =
       [ "format", "group__stream.html#aa67a91c8a43125d74296e5538c4b3eb1", null ],
       [ "flags", "group__stream.html#a3198f25925618f12ae653d79a311f8b0", null ],
       [ "clock_domain", "group__stream.html#aac9bd47624fe1bb12127c3150b883f98", null ],
-      [ "talker", "group__stream.html#ae98c93df5b7150142c227a4c2e6e5d6b", null ]
+      [ "talker", "group__stream.html#a4829fb4669dbbfa88c3a811a377f0152", null ]
     ] ],
     [ "genavb_stream_params.talker", "group__stream.html#structgenavb__stream__params_8talker", [
       [ "latency", "group__stream.html#a7883a7305bcbd394f768e04b9e800f53", null ],

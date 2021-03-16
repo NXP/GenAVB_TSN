@@ -19,7 +19,7 @@ endif
 CUSTOM_CFLAGS:=$(addprefix -D, $(CUSTOM_DEFINES))
 CFLAGS= $(CUSTOM_CFLAGS) -O2 -Wall -Werror -g -lgenavb -pthread -ldl -L$(GENAVB_PATH) -I$(GENAVB_INCLUDE) -DSTATS_LOG
 
-$(OBJDIR)$(APP_NAME): main.c tsn_task.c tsn_tasks_config.c thread_config.c cyclic_task.c serial_controller.c network_only.c \
+$(OBJDIR)$(APP_NAME): main.c tsn_task.c tsn_tasks_config.c thread_config.c cyclic_task.c serial_controller.c network_only.c tsn_timer.c \
 			../common/stats.c ../common/stats.c ../common/thread.c ../common/log.c ../common/time.c \
 			../common/timer.c ../common/helpers.c
 	$(CC) $(CFLAGS) -o $@ $^

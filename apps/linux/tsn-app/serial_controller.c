@@ -187,7 +187,7 @@ static void serial_controller_loop(void *data, int timer_status)
 		serial_controller_stats_dump(ctx);
 }
 
-struct serial_controller_ctx *serial_controller_init(unsigned int period_ns, unsigned int num_peers, int pt_fd)
+struct serial_controller_ctx *serial_controller_init(unsigned int period_ns, unsigned int num_peers, int pt_fd, unsigned int timer_type)
 {
 	struct cyclic_task *c_task = NULL;
 	struct serial_controller_ctx *ctx;
@@ -212,6 +212,8 @@ struct serial_controller_ctx *serial_controller_init(unsigned int period_ns, uns
 		ERR("cyclic_task_set_period() failed\n");
 		goto err_free;
 	}
+
+	c_task->params.timer_type = timer_type;
 
 	if (cyclic_task_init(c_task, serial_controller_net_recv, serial_controller_loop, ctx) < 0) {
 		ERR("cyclic_task_init() failed\n");

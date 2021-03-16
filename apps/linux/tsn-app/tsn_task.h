@@ -9,6 +9,7 @@
 
 #include "../common/stats.h"
 #include "../common/thread.h"
+#include "tsn_timer.h"
 
 #include <genavb/clock.h>
 #include <genavb/socket.h>
@@ -23,6 +24,8 @@
 #define ST_TX_TIME_FACTOR 2    /* Factor applied to critical time interval, to avoid frames getting stuck */
 #define ST_LIST_LEN	  3
 
+#define SCHEDULE_LATENCY_THRESHOLD (250000) /* packets will not be sent if app is woken up more than threshold ns after expected time */
+
 enum net_flags {
 	NET_OK,
 	NET_NO_FRAME,
@@ -35,6 +38,8 @@ struct tsn_task_params {
 	unsigned int task_period_offset_ns; //modulo 1 second
 	unsigned int transfer_time_ns;
 	int sched_traffic_offset;
+
+	unsigned int timer_type;
 
 	int num_rx_socket;
 	int rx_buf_size;
@@ -58,6 +63,7 @@ struct tsn_task_stats {
 	struct hist proc_time_hist;
 	struct stats total_time;
 	struct hist total_time_hist;
+	bool stats_valid;
 	unsigned int sched;
 	unsigned int sched_early;
 	unsigned int sched_late;
@@ -86,8 +92,7 @@ struct net_socket {
 
 struct tsn_task {
 	int id;
-	thr_thread_slot_t *slot;
-	int timer_fd;
+	struct tsn_timer *timer;
 	struct tsn_task_params *params;
 	void *ctx;
 	unsigned int clock_discont;
@@ -120,6 +125,11 @@ static inline uint64_t tsn_task_get_time(struct tsn_task *task)
 	return task->sched_time;
 }
 
+static inline uint64_t tsn_task_get_now(struct tsn_task *task)
+{
+	return task->sched_now;
+}
+
 static inline struct net_socket *tsn_net_sock_rx(struct tsn_task *task, int id)
 {
 	return &task->sock_rx[id];
@@ -146,7 +156,7 @@ int tsn_net_receive_enable_cb(struct net_socket *sock);
 int tsn_net_receive_sock(struct net_socket *sock);
 int tsn_net_transmit_sock(struct net_socket *sock);
 void tsn_stats_dump(struct tsn_task *task);
-void tsn_task_stats_start(struct tsn_task *task, int count);
+void tsn_task_stats_start(struct tsn_task *task, int count, uint64_t now);
 void tsn_task_stats_end(struct tsn_task *task);
 void tsn_task_stats_get_monitoring(struct tsn_task *task, uint32_t *sched_err_max, uint32_t *transmit_time_max, uint32_t nb_socket_rx);
 void tsn_task_stats_print(struct tsn_task *task);

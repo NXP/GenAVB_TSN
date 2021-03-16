@@ -28,11 +28,14 @@ static void null_loop(void *data, int timer_status)
 {
 	struct network_only_ctx *ctx = data;
 	struct cyclic_task *c_task = ctx->c_task;
+	uint64_t sched_time = tsn_task_get_time(c_task->task);
+	uint64_t sched_now = tsn_task_get_now(c_task->task);
 
-	cyclic_net_transmit(c_task, 0, NULL, 0);
+	if ((sched_now - sched_time) < SCHEDULE_LATENCY_THRESHOLD)
+		cyclic_net_transmit(c_task, 0, NULL, 0);
 }
 
-struct network_only_ctx *network_only_init(unsigned int role, unsigned int period_ns, unsigned int num_peers)
+struct network_only_ctx *network_only_init(unsigned int role, unsigned int period_ns, unsigned int num_peers, unsigned int timer_type)
 {
 	struct cyclic_task *c_task = NULL;
 	struct network_only_ctx *ctx;
@@ -59,6 +62,8 @@ struct network_only_ctx *network_only_init(unsigned int role, unsigned int perio
 			goto err_free;
 		}
 	}
+
+	c_task->params.timer_type = timer_type;
 
 	if (cyclic_task_init(c_task, NULL, null_loop, ctx) < 0) {
 		ERR("cyclic_task_init() failed\n");

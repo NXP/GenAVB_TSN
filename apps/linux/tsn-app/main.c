@@ -189,6 +189,7 @@ static void usage(void)
 	printf("\nOptions:\n"
 	       "\t-m <mode>          supported mode: \"network_only\" or \"serial\" (default: \"network_only\")\n"
 	       "\t-r <role>          supported role: \"controller\", \"io_device_0\" or \"io_device_1\" (default: \"controller\")\n"
+	       "\t-s <sleep handler> supported sleep handlers: \"epoll\" or \"nanosleep\" (default: \"nanosleep\")\n"
 	       "\t-p <period>        task period in nanoseconds (default: 2000000 ns)\n"
 	       "\t-n <peers number>  number of IO devices (default: 1, only used if role is set to \"controller\"\n"
 	       "\t-f <file name>     pts file name (default: don't write pts file name, only used if mode is set to \"serial\")\n");
@@ -198,6 +199,7 @@ int main(int argc, char *argv[])
 {
 	unsigned int mode = NETWORK_ONLY;
 	unsigned int role = CONTROLLER_0;
+	unsigned int timer_type = TSN_TIMER_NANOSLEEP;
 	unsigned long period_ns = 0;
 	unsigned long num_peers = 0;
 	struct genavb_handle *genavb_handle;
@@ -216,7 +218,7 @@ int main(int argc, char *argv[])
 
 	//setlinebuf(stdout);
 
-	while ((option = getopt(argc, argv, "hf:m:p:r:n:")) != -1) {
+	while ((option = getopt(argc, argv, "hf:m:p:r:n:s:")) != -1) {
 		switch (option) {
 
 		case 'f':
@@ -260,6 +262,18 @@ int main(int argc, char *argv[])
 				role = IO_DEVICE_1;
 			} else {
 				printf("invalid -r %s option\n", optarg);
+				usage();
+				goto err;
+			}
+			break;
+
+		case 's':
+			if (!strcasecmp(optarg, "epoll")) {
+				timer_type = TSN_TIMER_EPOLL;
+			} else if (!strcasecmp(optarg, "nanosleep")) {
+				timer_type = TSN_TIMER_NANOSLEEP;
+			} else {
+				printf("invalid -s %s option\n", optarg);
 				usage();
 				goto err;
 			}
@@ -333,7 +347,7 @@ int main(int argc, char *argv[])
 			goto err_thread_exit;
 		}
 
-		ctx = serial_controller_init(period_ns, num_peers, pt_fd);
+		ctx = serial_controller_init(period_ns, num_peers, pt_fd, timer_type);
 		if (!ctx) {
 			ERR("serial_controller_init() failed\n");
 			goto err_close_pt;
@@ -342,7 +356,7 @@ int main(int argc, char *argv[])
 		exit_fn = network_only_exit;
 		stats_handler = network_only_stats_handler;
 
-		ctx = network_only_init(role, period_ns, num_peers);
+		ctx = network_only_init(role, period_ns, num_peers, timer_type);
 		if (!ctx) {
 			ERR("network_only_init() failed\n");
 			goto err_thread_exit;

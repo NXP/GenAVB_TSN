@@ -50,7 +50,7 @@ struct msg_serial {
 	uint8_t cmd[MAX_SERIAL_COMMAND_LEN];
 };
 
-struct serial_controller_ctx *serial_controller_init(unsigned int period_ns, unsigned int num_peers, int pt_fd);
+struct serial_controller_ctx *serial_controller_init(unsigned int period_ns, unsigned int num_peers, int pt_fd, unsigned int timer_type);
 void serial_controller_exit(void *data);
 void serial_controller_stats_handler(void *data);
 

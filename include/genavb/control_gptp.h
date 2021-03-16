@@ -52,7 +52,7 @@ extern "C" {
  * 
  */
 struct genavb_msg_gm_get_status {
-	unsigned int domain;
+	uint8_t domain;
 };
 
 /**
@@ -60,7 +60,7 @@ struct genavb_msg_gm_get_status {
  * 
  */
 struct genavb_msg_gm_status {
-	unsigned int domain;
+	uint8_t domain;
 	uint64_t gm_id;
 };
 

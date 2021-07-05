@@ -1,0 +1,89 @@
+all: modules
+
+clean: modules-clean
+
+MODULES_OBJ_DIR:=$(objdir)/linux/modules
+
+MODULES_SRC:= linux/modules/common/.
+ifeq ($(CONFIG_NET_STD), y)
+MODULES_SRC+= linux/modules/std/. common/os/queue_common.*
+else
+MODULES_SRC+= linux/modules/avb/. common/os/. public/sr_class.c public/qos.c
+endif
+
+CFLAGS+= -iquote $(objdir)/linux
+
+modules_src_update:=$(shell \
+	mkdir -p $(MODULES_OBJ_DIR);\
+	cp -a $(MODULES_SRC) $(MODULES_OBJ_DIR)/.;\
+)
+
+modules: include-install
+	$(MAKE) -C $(MODULES_OBJ_DIR) V=$(V) modules MAKEFLAGS= GENAVB_INCLUDE=$(TOP_DIR)/include AUTOCONF=$(TOP_DIR)/$(objdir)/autoconf.h CONFIG_FILE=$(TOP_DIR)/$(config_file)
+
+modules-install: modules
+	$(MAKE) -C $(MODULES_OBJ_DIR) install MAKEFLAGS= GENAVB_INCLUDE=$(TOP_DIR)/include AUTOCONF=$(TOP_DIR)/$(objdir)/autoconf.h CONFIG_FILE=$(TOP_DIR)/$(config_file)
+
+modules-clean:
+	$(MAKE) -C $(MODULES_OBJ_DIR) clean MAKEFLAGS= GENAVB_INCLUDE=$(TOP_DIR)/include AUTOCONF=$(TOP_DIR)/$(objdir)/autoconf.h CONFIG_FILE=$(TOP_DIR)/$(config_file)
+
+modules-devkit-install:
+	mkdir -p $(DEVKIT_DIR)/linux/modules
+	cp -a $(MODULES_OBJ_DIR)/*.[ch] $(MODULES_OBJ_DIR)/Makefile $(DEVKIT_DIR)/linux/modules/.
+	rm -fr $(DEVKIT_DIR)/linux/modules/*.mod.c
+
+ifeq ($(CONFIG_APPS),y)
+
+APPS_OBJ_DIR:=../build/$(target)/$(config)/apps/
+
+all: apps
+install: apps-install
+clean: apps-clean
+
+apps: stack-install
+	$(MAKE) -C apps $(target_os) objdir=$(APPS_OBJ_DIR) GENAVB_PATH=$(LIB_DIR) GENAVB_INCLUDE=$(INCLUDE_DIR) CONFIG_FILE=$(TOP_DIR)/$(config_file) CUSTOM_DEFINES="$(APPS_CUSTOM_DEFINES)"
+
+apps-install: apps
+	$(MAKE) -C apps $(target_os)-install objdir=$(APPS_OBJ_DIR) GENAVB_PATH=$(LIB_DIR) CONFIG_FILE=$(TOP_DIR)/$(config_file)
+
+apps-clean:
+	$(MAKE) -C apps clean objdir=$(APPS_OBJ_DIR) CONFIG_FILE=$(TOP_DIR)/$(config_file)
+
+apps-devkit-install:
+#	release application folder
+	mkdir -p $(DEVKIT_DIR)/apps/linux
+	$(MAKE) -C apps devkit-install DEVKIT_DIR=$(DEVKIT_DIR)/apps/linux CONFIG_FILE=$(TOP_DIR)/$(config_file)
+	cp apps/Makefile $(DEVKIT_DIR)/apps
+	cp apps/rules.mk $(DEVKIT_DIR)/apps
+endif
+
+stack-install: $(config)-install
+install: modules-install
+
+endpoint_1733-install endpoint_avb-install endpoint_tsn-install endpoint_gptp_only-install bridge-install hybrid-install:
+	$(MAKE) -C linux/scripts $@ BIN_DIR=$(BIN_DIR) INITSCRIPT_DIR=$(INITSCRIPT_DIR)/genavb
+	$(MAKE) -C linux/configs $@ CONFIG_DIR=$(CONFIG_DIR)
+
+doc-devkit-install: doc_clean doc
+#	release documentation
+	mkdir -p $(DEVKIT_DIR)/doc/html
+	cp -r build/$(target_os)/docs/html/* $(DEVKIT_DIR)/doc/html/.
+#	mkdir $(RELEASE_DIR)/doc/man
+#	cp -r build/docs/man/* $(RELEASE_DIR)/doc/man/.
+
+licenses-devkit-install:
+	mkdir -p $(DEVKIT_DIR)
+	cp -r licenses $(DEVKIT_DIR)
+
+devkit-install: modules-devkit-install doc-devkit-install licenses-devkit-install
+	mkdir -p $(DEVKIT_DIR)
+	cp README.sdk $(DEVKIT_DIR)/README.md
+#	release public folder
+	cp -r public $(DEVKIT_DIR)
+	cp scr_files/$(SCR_FILE).$(target_os) $(DEVKIT_DIR)/$(SCR_FILE)
+
+ifeq ($(CONFIG_APPS),y)
+devkit-install: apps-devkit-install
+endif
+
+.PHONY: apps

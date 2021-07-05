@@ -1,0 +1,18 @@
+OSAL_CONFIG_linux_imx6_endpoint_avb:=		net_avb_endpoint
+OSAL_CONFIG_linux_imx6_bridge:=			net_avb_bridge
+OSAL_CONFIG_linux_imx6_hybrid:=			net_avb_bridge
+OSAL_CONFIG_linux_imx6_endpoint_1733:=		net_avb_endpoint
+OSAL_CONFIG_linux_imx6_endpoint_gptp_only:=	net_avb_endpoint
+OSAL_CONFIG_linux_imx8_endpoint_avb:=		net_avb_endpoint
+OSAL_CONFIG_linux_imx8_bridge:=			net_avb_bridge
+OSAL_CONFIG_linux_imx8_hybrid:=			net_avb_bridge
+OSAL_CONFIG_linux_imx8_endpoint_gptp_only:=	net_avb_endpoint
+OSAL_CONFIG_linux_ls1028_bridge:=		net_std
+OSAL_CONFIG_linux_imx6_endpoint_tsn:=		net_std
+OSAL_CONFIG_linux_imx8_endpoint_tsn:=		net_std
+
+ifeq ($(OSAL_CONFIG_$(target)_$(config)),)
+$(error Osal configuration missing for target: $(target), config: $(config))
+endif
+
+osal_config_file:=linux/osal/configs/config_$(OSAL_CONFIG_$(target)_$(config))

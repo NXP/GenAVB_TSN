@@ -1,0 +1,86 @@
+/*
+* Copyright 2020 NXP
+* 
+* NXP Confidential. This software is owned or controlled by NXP and may only 
+* be used strictly in accordance with the applicable license terms.  By expressly 
+* accepting such terms or by downloading, installing, activating and/or otherwise 
+* using the software, you are agreeing that you have read, and that you agree to 
+* comply with and are bound by, such license terms.  If you do not agree to be 
+* bound by the applicable license terms, then you may not retain, install, activate 
+* or otherwise use the software.
+*/
+
+/**
+ @file
+ @brief Frame preemption state machines
+ @details
+*/
+
+#ifndef _FP_H_
+#define _FP_H_
+
+#include <stdbool.h>
+
+struct fp_verify_sm {
+	/* configuration */
+	bool disable_verify;
+	bool p_enable;
+	unsigned int verify_time;
+
+	/* response state machine */
+	unsigned int r_state;
+
+	/* response events */
+	bool rcv_v;
+	bool snd_r;
+
+	/* verify state machine */
+	unsigned int v_state;
+
+	unsigned int verify_cnt;
+	bool verify_fail;
+	bool verified;
+	bool p_active;
+
+	/* verify events */
+	bool begin;
+	bool link_fail;
+	bool snd_v;
+	bool rcv_r;
+	bool timer_expired;
+
+	void *priv;
+
+	void (*send_response)(void *priv);
+	void (*send_verify)(void *priv);
+	void (*start_timer)(void *priv, unsigned int ms);
+	void (*enable)(void *priv);
+	void (*disable)(void *priv);
+};
+
+enum {
+	FP_EVENT_RECEIVED_RESPONSE,
+	FP_EVENT_TRANSMITTED_RESPONSE,
+	FP_EVENT_RECEIVED_VERIFY,
+	FP_EVENT_TRANSMITTED_VERIFY,
+	FP_EVENT_VERIFY_ENABLE,
+	FP_EVENT_VERIFY_DISABLE,
+	FP_EVENT_PREEMPTION_ENABLE,
+	FP_EVENT_PREEMPTION_DISABLE,
+	FP_EVENT_LINK_FAIL,
+	FP_EVENT_LINK_OK,
+	FP_EVENT_TIMER_EXPIRED
+};
+
+#define FP_ADD_FRAG_SIZE_MIN	0
+#define FP_ADD_FRAG_SIZE_MAX	3
+
+#define FP_VERIFY_TIME_MIN	1
+#define FP_VERIFY_TIME_MAX	128
+
+int fp_status_verify(struct fp_verify_sm *sm);
+void fp_event(struct fp_verify_sm *sm, unsigned int event);
+void fp_schedule(struct fp_verify_sm *sm);
+void fp_init(struct fp_verify_sm *sm, void *priv);
+
+#endif /* _FP_H_ */

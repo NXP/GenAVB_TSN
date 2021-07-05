@@ -1,0 +1,27 @@
+#! /bin/sh
+
+# Set following configuration to 1 to start GenAVB automatically at boot time
+CFG_AUTO_START=1
+
+# Set this flag to 1 to synchronize the system clock to the ptp hardware clock
+CFG_USE_PHC2SYS=1
+
+# Set configuration profile to use.
+# A configuration profile is made of two config files (see /etc/genavb/*.cfg)
+# The 1st file APPS_CFG_FILE configures external applications
+# The 2nd file GENAVB_CFG_FILE configures the AVB stack
+# Set PROFILE below to the desired configuration profile
+
+PROFILE=1
+
+# PROFILE 1 - TSN application controller
+# PROFILE 2 - TSN application IO device
+
+APPS_CFG_FILE_1=/etc/genavb/apps-tsn-network-controller.cfg
+GENAVB_CFG_FILE_1=/etc/genavb/genavb-tsn.cfg
+
+APPS_CFG_FILE_2=/etc/genavb/apps-tsn-network-iodevice.cfg
+GENAVB_CFG_FILE_2=/etc/genavb/genavb-tsn.cfg
+
+eval "APPS_CFG_FILE=\${APPS_CFG_FILE_$PROFILE}"
+eval "GENAVB_CFG_FILE=\${GENAVB_CFG_FILE_$PROFILE}"

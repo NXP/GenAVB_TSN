@@ -1,0 +1,3 @@
+/*
+ * autoconf.h placeholder
+ */

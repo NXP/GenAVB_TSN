@@ -1,0 +1,43 @@
+doc-devkit-install: doc_clean doc
+#	release documentation
+	mkdir -p $(DEVKIT_DIR)/doc/html
+	cp -r build/$(target_os)/docs/html/* $(DEVKIT_DIR)/doc/html/.
+
+devkit-install: doc-devkit-install
+	$(foreach dir,$(maindirs), \
+	mkdir -p $(DEVKIT_DIR)/$(dir); \
+	touch $(DEVKIT_DIR)/$(dir)/Makefile; \
+	if [ -f $(dir)/$(dir)_entry.h ]; then \
+		cp $(dir)/$(dir)_entry.h $(DEVKIT_DIR)/$(dir); \
+	fi; \
+	if [ -f $(dir)/config.h ]; then \
+		cp $(dir)/config.h $(DEVKIT_DIR)/$(dir); \
+	fi; \
+	if [ -d $(dir)/freertos ]; then \
+		cp -r $(dir)/freertos $(DEVKIT_DIR)/$(dir); \
+		echo "os_subdirs:=freertos" > $(DEVKIT_DIR)/$(dir)/Makefile; \
+	fi; \
+	)
+	# osal
+	cp -r $(target_os) $(DEVKIT_DIR)/
+	# config
+	mkdir -p $(DEVKIT_DIR)/configs
+	cp configs/config_$(config) $(DEVKIT_DIR)/configs/
+	# os
+	cp -r os $(DEVKIT_DIR)/
+	# api
+	cp -r api $(DEVKIT_DIR)/
+	rm -rf $(DEVKIT_DIR)/api/linux
+	# common
+	mkdir -p $(DEVKIT_DIR)/common
+	cp common/*.h $(DEVKIT_DIR)/common
+	cp -r common/os $(DEVKIT_DIR)/common/os
+	# make/env
+	cp Makefile $(DEVKIT_DIR)
+	cp Makefile.freertos $(DEVKIT_DIR)
+	cp rules.mk $(DEVKIT_DIR)
+	cp config.mk $(DEVKIT_DIR)
+	echo "release_mode:=1" >> $(DEVKIT_DIR)/config.mk
+	cp config_$(target).mk $(DEVKIT_DIR)
+	cp scr_files/$(SCR_FILE).$(target_os) $(DEVKIT_DIR)/$(SCR_FILE)
+	cp -r licenses $(DEVKIT_DIR)

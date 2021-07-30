@@ -125,9 +125,9 @@ var NAVTREEINDEX =
 "clock_usage.html",
 "group__avdecc__format.html#a2e282b0d23d6ec55185caeb87b41c0e0",
 "group__control.html#a9d03ed3c66e68e707d1cfdc621b4149d",
-"group__cvf__mjpeg.html#a1d048f7656ad4098b52ed8066fcdf596",
-"group__protocol.html#a9a9467c6de3704a219bdd2680ba62096",
-"socket_usage.html"
+"group__cvf__mjpeg.html",
+"group__protocol.html#a8dab3c4ccd3491ba168106d1452938d6",
+"modules.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

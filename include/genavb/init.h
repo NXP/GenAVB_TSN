@@ -148,6 +148,8 @@ struct management_config {
 struct fgptp_port_config {
 	uint8_t portRole;
 	uint8_t ptpPortEnabled;
+	int rxDelayCompensation;
+	int txDelayCompensation;
 };
 
 /**

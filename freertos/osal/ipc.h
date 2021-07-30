@@ -32,5 +32,6 @@ struct ipc_tx {
 };
 
 int ipc_rx_set_callback(struct ipc_rx *rx, int (*callback)(void *), void *data);
+int ipc_rx_enable_callback(struct ipc_rx *rx);
 
 #endif /* _FREERTOS_OSAL_IPC_H_ */

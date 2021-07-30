@@ -88,6 +88,7 @@ struct ipc_slot {
 
 	int (*callback)(void *data);
 	void *callback_data;
+	bool callback_enabled;
 
 	QueueHandle_t event_queue_handle;
 	void *event_data;
@@ -300,7 +301,7 @@ err:
 
 static int ipc_rx_default_callback(void *data)
 {
-	const struct ipc_slot *slot = data;
+	struct ipc_slot *slot = data;
 	struct event e;
 	BaseType_t wake;
 
@@ -309,6 +310,8 @@ static int ipc_rx_default_callback(void *data)
 	if (xQueueSendToBackFromISR(slot->event_queue_handle, &e, &wake) != pdTRUE) {
 		/* Can not report error to upper layer, since the message was queued */
 	}
+
+	slot->callback_enabled = true;
 
 	if (wake)
 		return 1;
@@ -323,8 +326,10 @@ static int ipc_tx_slot(struct ipc_slot *queue_slot, struct ipc_slot *wake_slot, 
 	if (xQueueSendToBackFromISR(queue_slot->queue_handle, &desc, NULL) != pdTRUE)
 		goto err;
 
-	if (wake_slot->callback)
+	if (wake_slot->callback && wake_slot->callback_enabled) {
+		wake_slot->callback_enabled = false;
 		rc = wake_slot->callback(wake_slot->callback_data);
+	}
 
 	return rc;
 
@@ -386,6 +391,7 @@ int ipc_rx_init(struct ipc_rx *rx,
 	if (priv) {
 		slot->callback = ipc_rx_default_callback;
 		slot->callback_data = slot;
+		slot->callback_enabled = true;
 		slot->event_queue_handle = (void *)priv;
 		slot->event_data = rx;
 	}
@@ -474,6 +480,10 @@ int ipc_rx_set_callback(struct ipc_rx *rx, int (*callback)(void *), void *data)
 
 	slot->callback = callback;
 	slot->callback_data = data;
+	if (slot->callback)
+		slot->callback_enabled = true;
+	else
+		slot->callback_enabled = false;
 
 	xSemaphoreGive(ipc->mutex);
 
@@ -481,6 +491,46 @@ int ipc_rx_set_callback(struct ipc_rx *rx, int (*callback)(void *), void *data)
 
 err:
 	return -1;
+}
+
+static bool ipc_slot_has_pending(struct ipc_slot *slot)
+{
+	struct event e;
+	
+	return (xQueuePeek(slot->queue_handle, &e, 0) == pdTRUE);
+}
+
+int ipc_rx_enable_callback(struct ipc_rx *rx)
+{
+	struct ipc_slot *slot = rx->ipc_slot;
+	struct ipc_channel *ipc;
+	int rc = 0;
+
+	if (!slot) {
+		rc = -1;
+		goto err;
+	}
+
+	ipc = slot->ipc;
+
+	xSemaphoreTake(ipc->mutex, portMAX_DELAY);
+
+	if (!slot->callback) {
+		rc = -1;
+		goto err_unlock;
+	}
+
+	slot->callback_enabled = true;
+
+	if (ipc_slot_has_pending(slot)) {
+		slot->callback_enabled = false;
+		slot->callback(slot->callback_data);
+	}
+
+err_unlock:
+	xSemaphoreGive(ipc->mutex);
+err:
+	return rc;
 }
 
 int ipc_tx_init(struct ipc_tx *tx, ipc_id_t id)

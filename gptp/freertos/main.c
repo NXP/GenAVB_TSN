@@ -82,6 +82,8 @@ const struct fgptp_config gptp_default_config = {
 		[0 ... CFG_MAX_NUM_PORT - 1] = {
 			.portRole = CFG_GPTP_DEFAULT_PORT_ROLE,
 			.ptpPortEnabled = CFG_GPTP_DEFAULT_PTP_ENABLED,
+			.rxDelayCompensation = CFG_GPTP_DEFAULT_RX_DELAY_COMP,
+			.txDelayCompensation = CFG_GPTP_DEFAULT_TX_DELAY_COMP,
 		},
 	},
 
@@ -227,6 +229,9 @@ __init static void process_section_port_params(struct fgptp_config *cfg)
 			cfg->port_cfg[i].portRole = MASTER_PORT;
 
 		cfg->port_cfg[i].ptpPortEnabled = check_bounds_unsigned_int(cfg->port_cfg[i].ptpPortEnabled, CFG_GPTP_DEFAULT_PTP_ENABLED_MIN, CFG_GPTP_DEFAULT_PTP_ENABLED_MAX);
+
+		cfg->port_cfg[i].rxDelayCompensation = check_bounds_int(cfg->port_cfg[i].rxDelayCompensation, CFG_GPTP_DEFAULT_DELAY_COMP_MIN, CFG_GPTP_DEFAULT_DELAY_COMP_MAX);
+		cfg->port_cfg[i].txDelayCompensation = check_bounds_int(cfg->port_cfg[i].txDelayCompensation, CFG_GPTP_DEFAULT_DELAY_COMP_MIN, CFG_GPTP_DEFAULT_DELAY_COMP_MAX);
 	}
 }
 

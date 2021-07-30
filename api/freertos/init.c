@@ -210,6 +210,10 @@ __init int genavb_init(struct genavb_handle **genavb, unsigned int flags)
 {
 	int rc = -GENAVB_ERR_NO_MEMORY;
 
+	log_level_set(api_COMPONENT_ID, LOG_INIT);
+	log_level_set(common_COMPONENT_ID, LOG_INIT);
+	log_level_set(os_COMPONENT_ID, LOG_INFO);
+
 	os_log(LOG_INIT, "NXP's GenAVB/TSN stack version %s (Built %s %s)\n", GENAVB_VERSION, __DATE__, __TIME__);
 
 	*genavb = pvPortMalloc(sizeof(struct genavb_handle));
@@ -222,10 +226,6 @@ __init int genavb_init(struct genavb_handle **genavb, unsigned int flags)
 
 	(*genavb)->flags = flags;
 	(*genavb)->flags &= ~AVTP_INITIALIZED;
-
-	log_level_set(api_COMPONENT_ID, LOG_ERR);
-	log_level_set(common_COMPONENT_ID, LOG_INIT);
-	log_level_set(os_COMPONENT_ID, LOG_INFO);
 
 	if (osal_init() < 0)
 		goto err_osal;

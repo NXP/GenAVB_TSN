@@ -401,6 +401,8 @@ Enumerations</h2></td></tr>
 Functions</h2></td></tr>
 <tr class="memitem:ga3e1d22e6b4342f790bf25356bd2ce3ca"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__control.html#ga3e1d22e6b4342f790bf25356bd2ce3ca">genavb_control_set_callback</a> (struct genavb_control_handle *handle, int(*callback)(void *), void *data)</td></tr>
 <tr class="separator:ga3e1d22e6b4342f790bf25356bd2ce3ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga5bae84d73770286c9225bd9581163133"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__control.html#ga5bae84d73770286c9225bd9581163133">genavb_control_enable_callback</a> (struct genavb_control_handle *handle)</td></tr>
+<tr class="separator:ga5bae84d73770286c9225bd9581163133"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga5578fc52cccd9d59af19d6301c997b30"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__control.html#ga5578fc52cccd9d59af19d6301c997b30">genavb_control_open</a> (struct genavb_handle const *genavb, struct genavb_control_handle **handle, <a class="el" href="group__control.html#gabe9c9a1e2ef8ec04e182c12131397b6e">genavb_control_id_t</a> id)</td></tr>
 <tr class="separator:ga5578fc52cccd9d59af19d6301c997b30"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga5fd11898e51c3fc774946f7c87e830ec"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__control.html#ga5fd11898e51c3fc774946f7c87e830ec">genavb_control_send</a> (struct genavb_control_handle const *handle, <a class="el" href="group__control.html#ga55b3a83feba03f6cf5bcbc0d7e1438d1">genavb_msg_type_t</a> msg_type, void const *msg, unsigned int msg_len)</td></tr>
@@ -2381,12 +2383,42 @@ error_response</td>
 </div><div class="memdoc">
 
 <p>Sets notification callback for a given control channel. </p>
+<p>The callback must not block and should do minimal processing of events, typically just schedule another task to do the actual event handling. The callback is disabled after each call and must be explicitly re-enabled by calling (<a class="el" href="group__control.html#ga5bae84d73770286c9225bd9581163133" title="Enables notification callback for a given control channel.">genavb_control_enable_callback</a>).</p>
+<p>GenAVB stack will call the callback function when: A control receive message is available, the application should call <a class="el" href="group__control.html#gaf98c2c44f87c3315ab02060426128f5b" title="Receive control message from the GenAVB stack.">genavb_control_receive()</a></p>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__generic.html#gga031a0b2111b623fef60d707141a995d5a652003ceb0485f27d4a45e7c29dffe7f" title="Success.">GENAVB_SUCCESS</a>, or negative error code. </dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">handle</td><td>control handle returned by ::avb_control_open. </td></tr>
     <tr><td class="paramname">callback</td><td>application callback function. </td></tr>
     <tr><td class="paramname">data</td><td>application private data. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ga5bae84d73770286c9225bd9581163133"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga5bae84d73770286c9225bd9581163133">&#9670;&nbsp;</a></span>genavb_control_enable_callback()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int genavb_control_enable_callback </td>
+          <td>(</td>
+          <td class="paramtype">struct genavb_control_handle *&#160;</td>
+          <td class="paramname"><em>handle</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Enables notification callback for a given control channel. </p>
+<p>Enabling callback is valid only for one event, so the application needs to re-enable it after each event. In addition if a message is available this function will call directly the control callback.</p>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__generic.html#gga031a0b2111b623fef60d707141a995d5a652003ceb0485f27d4a45e7c29dffe7f" title="Success.">GENAVB_SUCCESS</a>, or negative error code. </dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">handle</td><td>control handle returned by ::avb_control_open. </td></tr>
   </table>
   </dd>
 </dl>

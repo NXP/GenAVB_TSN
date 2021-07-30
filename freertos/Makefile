@@ -14,7 +14,7 @@ avb-obj+= media_clock.o mtimer.o media_clock_rec_pll.o media_clock_gen_ptp.o med
 endif
 
 ifneq ($(FREERTOS_SDK),)
-CFLAGS+= -I $(FREERTOS_SDK)/CMSIS/Include
+CFLAGS+= -I $(FREERTOS_SDK)/CMSIS/Core/Include
 CFLAGS+= -I $(FREERTOS_SDK)/components/serial_manager
 CFLAGS+= -I $(FREERTOS_SDK)/components/uart
 CFLAGS+= -I $(FREERTOS_SDK)/components/phy

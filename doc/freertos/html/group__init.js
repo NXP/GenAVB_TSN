@@ -61,7 +61,9 @@ var group__init =
     ] ],
     [ "fgptp_port_config", "group__init.html#structfgptp__port__config", [
       [ "portRole", "group__init.html#a3e40af1c960221a46a4da635ac4ff2b8", null ],
-      [ "ptpPortEnabled", "group__init.html#a0126e6dacf5411cf43b78e2d4dee5786", null ]
+      [ "ptpPortEnabled", "group__init.html#a0126e6dacf5411cf43b78e2d4dee5786", null ],
+      [ "rxDelayCompensation", "group__init.html#af80f86bc52bdeef948734b29541405ed", null ],
+      [ "txDelayCompensation", "group__init.html#a326a2e94d13b9b2460c34c2376fb7b03", null ]
     ] ],
     [ "fgptp_domain_config", "group__init.html#structfgptp__domain__config", [
       [ "domain_number", "group__init.html#a9e1a8f1b3cadeaabb84692f825108235", null ],

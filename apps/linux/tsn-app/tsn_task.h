@@ -52,7 +52,7 @@ struct tsn_task_params {
 
 struct net_socket_stats {
 	unsigned int frames;
-	unsigned int frames_err;
+	unsigned int err;
 	bool pending;
 };
 

@@ -352,7 +352,7 @@ void opcua_update_net_socket_stats(struct net_socket *sock)
 	nid = &net_socket_stats_nid[index];
 
 	opcua_set_value(&stats->frames, OP_UINT32, nid->frames);
-	opcua_set_value(&stats->frames_err, OP_UINT32, nid->frames_err);
+	opcua_set_value(&stats->err, OP_UINT32, nid->frames_err);
 	opcua_set_value(&sock->id, OP_INT32, nid->id);
 }
 

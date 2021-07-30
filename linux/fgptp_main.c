@@ -345,6 +345,17 @@ static int process_section_port_params(struct _SECTIONENTRY *configtree, struct 
 			rc = -1;
 			goto exit;
 		}
+
+		/*Port's Rx/Tx delays compensation */
+		if (cfg_get_signed_int(configtree, section, "rxDelayCompensation", CFG_GPTP_DEFAULT_RX_DELAY_COMP, CFG_GPTP_DEFAULT_DELAY_COMP_MIN, CFG_GPTP_DEFAULT_DELAY_COMP_MAX, &cfg->port_cfg[i].rxDelayCompensation)) {
+			rc = -1;
+			goto exit;
+		}
+
+		if (cfg_get_signed_int(configtree, section, "txDelayCompensation", CFG_GPTP_DEFAULT_TX_DELAY_COMP, CFG_GPTP_DEFAULT_DELAY_COMP_MIN, CFG_GPTP_DEFAULT_DELAY_COMP_MAX, &cfg->port_cfg[i].txDelayCompensation)) {
+			rc = -1;
+			goto exit;
+		}
 	}
 exit:
 	return rc;

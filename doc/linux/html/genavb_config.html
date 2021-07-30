@@ -100,10 +100,10 @@ $(document).ready(function(){initNavTree('genavb_config.html',''); initResizable
 <div class="contents">
 <div class="textblock"><p>The GenAVB stack is configured at startup through different configuration files.</p>
 <hr  />
-<h1><a class="anchor" id="autotoc_md99"></a>
+<h1><a class="anchor" id="autotoc_md101"></a>
 Main Configuration</h1>
 <p>The main parameters are defined in the /etc/genavb/config file.</p>
-<h3><a class="anchor" id="autotoc_md100"></a>
+<h3><a class="anchor" id="autotoc_md102"></a>
 Configuration profile</h3>
 <p>A configuration profile is made of a pair of configuration files.</p>
 <table class="markdownTable">
@@ -115,7 +115,7 @@ Configuration profile</h3>
 <td class="markdownTableBodyNone">GENAVB_CFG_FILE </td><td class="markdownTableBodyLeft">Text string (default "/etc/genavb/genavb-listener.cfg") </td><td class="markdownTableBodyLeft">Points to a genavb-*.cfg file containing the configuration of the AVB stack, and is parsed by the avb application.  </td></tr>
 </table>
 <p>There are several pre-defined profiles, which can be used to set the role and behavior of the AVB node. Set these parameters according to the description of each demo preparation steps.</p>
-<h3><a class="anchor" id="autotoc_md101"></a>
+<h3><a class="anchor" id="autotoc_md103"></a>
 Auto start</h3>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -124,7 +124,7 @@ Auto start</h3>
 <td class="markdownTableBodyNone">CFG_AUTO_START </td><td class="markdownTableBodyLeft">0 or 1 (default 1)  </td></tr>
 </table>
 <p>Set to 1 to start the AVB stack automatically at system startup time. Set to 0 will require starting the AVB stack manually (# avb.sh start).</p>
-<h3><a class="anchor" id="autotoc_md102"></a>
+<h3><a class="anchor" id="autotoc_md104"></a>
 Setting system clock to be gPTP-based</h3>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -134,10 +134,10 @@ Setting system clock to be gPTP-based</h3>
 </table>
 <p>Set this parameter to 1 in order to base the system clock on gPTP time. This will ensure that applications (like gstreamer) using the system clock have their process gPTP-based.</p>
 <hr  />
-<h1><a class="anchor" id="autotoc_md104"></a>
+<h1><a class="anchor" id="autotoc_md106"></a>
 Application profile parameters</h1>
 <p>The profile parameters are defined in the apps-*.cfg files of the /etc/genavb/ directory. Several profiles are already defined, targeted to suit example usage scenarii. The meaning of the parameters is as follows:</p>
-<h3><a class="anchor" id="autotoc_md105"></a>
+<h3><a class="anchor" id="autotoc_md107"></a>
 Fast connect mode</h3>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -146,7 +146,7 @@ Fast connect mode</h3>
 <td class="markdownTableBodyNone">CFG_FAST_CONNECT_BTB </td><td class="markdownTableBodyLeft">0 or 1 (default 0)  </td></tr>
 </table>
 <p>If this parameter is set to 0, the AVB entity is expected to establish AVB connection upon external AVDECC controller exchanges. Set this parameter to 1 on a listener entity to enable the fast-connect back-to-back mode. When enabled the AVB entity will connect to the first talker advertised on the network. This mode is recommended in back-to-back setup, where no external controller is present. The other (talker) entity shouldn't have this mode enabled.</p>
-<h3><a class="anchor" id="autotoc_md106"></a>
+<h3><a class="anchor" id="autotoc_md108"></a>
 Defining a media application</h3>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -157,7 +157,7 @@ Defining a media application</h3>
 <td class="markdownTableBodyNone">CFG_EXTERNAL_MEDIA_APP_OPT </td><td class="markdownTableBodyLeft">Text string in double quotes (default "")  </td></tr>
 </table>
 <p>These parameters indicate the name of the media application binary to be loaded along with the AVB stack, and its associated input parameters. The media application binary must be present in the file system of the target under the /usr/bin repository. The application name must be specified as absolute path or be in the default PATH.</p>
-<h3><a class="anchor" id="autotoc_md107"></a>
+<h3><a class="anchor" id="autotoc_md109"></a>
 Defining a controller application</h3>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -168,7 +168,7 @@ Defining a controller application</h3>
 <td class="markdownTableBodyNone">CFG_CONTROLLER_APP_OPT </td><td class="markdownTableBodyLeft">Text string in double quotes (default "")  </td></tr>
 </table>
 <p>These parameters indicate the name of the controller application binary to be loaded along with the AVB stack, and its associated input parameters. The controller application binary must be present in the file system of the target under the /usr/bin repository, and be executable. The application name must be specified as absolute path or be in the default PATH.</p>
-<h3><a class="anchor" id="autotoc_md108"></a>
+<h3><a class="anchor" id="autotoc_md110"></a>
 Custom controller parameters</h3>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -179,7 +179,7 @@ Custom controller parameters</h3>
 <td class="markdownTableBodyNone">CFG_CONTROLLER_FBSET_OPT </td><td class="markdownTableBodyLeft">Text string in double quotes  </td></tr>
 </table>
 <p>These parameters are options used by the genavb-gui-controller example application, to define the frame buffer type and related options used for the GUI composition.</p>
-<h3><a class="anchor" id="autotoc_md109"></a>
+<h3><a class="anchor" id="autotoc_md111"></a>
 Defining a control application</h3>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -191,11 +191,11 @@ Defining a control application</h3>
 </table>
 <p>These parameters enable and indicate the name of the control application binary to be loaded along with the AVB stack. Set this parameter to 1 and specify the control application name to enable such application type to handle AECP controls commands such as volume control from the other entity. The control application binary must be present in the file system of the target under the /usr/bin repository. The application name must be specified as absolute path or be in the default PATH.</p>
 <hr  />
-<h1><a class="anchor" id="autotoc_md111"></a>
+<h1><a class="anchor" id="autotoc_md113"></a>
 GenAVB stack profile parameters</h1>
 <p>The stack parameters are defined in the genavb-*.cfg files of the /etc/genavb/ directory. Several profiles are already defined, targeted to suit example usage scenarii. Cfg files are organized by sections (noted [XXX]), containing several key/value pairs.</p>
 <p>Use # to comment lines. When a section or key/value pair is missing in the cfg file, default values will be used. The meaning of the section and keys is as follows:</p>
-<h3><a class="anchor" id="autotoc_md112"></a>
+<h3><a class="anchor" id="autotoc_md114"></a>
 Section [AVB_GENERAL]</h3>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -209,7 +209,7 @@ Section [AVB_GENERAL]</h3>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">sr_class_enabled </td><td class="markdownTableBodyLeft">Text string: Can be 'A', 'B', 'C', 'D' or 'E'. (default: A,B) </td><td class="markdownTableBodyLeft">Select enabled SR classes, must be 2 different classes separated by a comma (order has no impact as alphabetical order will be applied)  </td></tr>
 </table>
-<h3><a class="anchor" id="autotoc_md113"></a>
+<h3><a class="anchor" id="autotoc_md115"></a>
 Section [AVB_AVDECC]</h3>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -225,7 +225,7 @@ Section [AVB_AVDECC]</h3>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone">association_id </td><td class="markdownTableBodyLeft">Unsigned, 64 bits (default 0) </td><td class="markdownTableBodyLeft">Association ID to advertise for the local entities (see custom AEM parameters below).  </td></tr>
 </table>
-<h3><a class="anchor" id="autotoc_md114"></a>
+<h3><a class="anchor" id="autotoc_md116"></a>
 Section [AVB_AVDECC_ENTITY_1]</h3>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -243,7 +243,7 @@ Section [AVB_AVDECC_ENTITY_1]</h3>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">channel_waitmask </td><td class="markdownTableBodyLeft">bitmask, between 0 and 7 included. default: 0 </td><td class="markdownTableBodyLeft">The stack waits for the specified control channels to be opened by the application before starting AVDECC for the entity: bit 0 =&gt; MEDIA_STACK channel, bit 1 =&gt; CONTROLLER channel, bit 2 =&gt; CONTROLLED channel.  </td></tr>
 </table>
-<h3><a class="anchor" id="autotoc_md115"></a>
+<h3><a class="anchor" id="autotoc_md117"></a>
 Section [AVB_AVDECC_ENTITY_2]</h3>
 <p>It is possible to define a second AEM entity on the same node. If used, the second entity can only be an AVDECC controller. </p><table class="markdownTable">
 <tr class="markdownTableHead">
@@ -253,7 +253,7 @@ Section [AVB_AVDECC_ENTITY_2]</h3>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">channel_waitmask </td><td class="markdownTableBodyLeft">bitmask, between 0 and 7 included. default: 0 </td><td class="markdownTableBodyLeft">The stack waits for the specified control channels to be opened by the application before starting AVDECC for the entity: bit 0 =&gt; MEDIA_STACK channel, bit 1 =&gt; CONTROLLER channel, bit 2 =&gt; CONTROLLED channel.  </td></tr>
 </table>
-<h3><a class="anchor" id="autotoc_md116"></a>
+<h3><a class="anchor" id="autotoc_md118"></a>
 Section [AVB_MSRP]</h3>
 <p>MSRP stack component configuration</p>
 <table class="markdownTable">
@@ -262,20 +262,20 @@ Section [AVB_MSRP]</h3>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone">declare_listener_asking_failed </td><td class="markdownTableBodyLeft">0 or 1 (default 0) </td><td class="markdownTableBodyLeft">Enables declaration of MSRP Listener attributes with a LISTENER_ASKING_FAILED value (as opposed to simply stop declaring the Listener attribute). 0 - disabled, 1 - enabled.  </td></tr>
 </table>
-<h3><a class="anchor" id="autotoc_md117"></a>
+<h3><a class="anchor" id="autotoc_md119"></a>
 Custom AEM parameters</h3>
 <p>Except for a few specific items, all the fields of an AEM entity take their value from the AEM entity description file (see section 4 below).The parameters that behave differently are:</p><ul>
 <li>the association ID</li>
 <li>the entity ID</li>
 <li>the entity model ID</li>
 </ul>
-<h4><a class="anchor" id="autotoc_md118"></a>
+<h4><a class="anchor" id="autotoc_md120"></a>
 Association ID</h4>
 <p>If the association_id parameter of the [AVB_AVDECC] section of the configuration file is set to a non-zero value, it will override any value set in the AEM definition files, for all entities on the endpoint. If it is unset or 0, the value stored in each entity AEM definition file will be used instead.</p>
 <blockquote class="doxtable">
 <p>For each entity, a non-zero association_id value remains dependent on the ADP_ENTITY_ASSOCIATION_ID_SUPPORTED flag being set in the entity_capabilities field of the AEM definition file. If that flag isn't set, the association_id will be forced to 0 at init time. The ADP_ENTITY_ASSOCIATION_ID_VALID flag will also be set or cleared at init time, based on the value of the assocation_id field (independently of the initial value stored in the AEM definition file). </p>
 </blockquote>
-<h4><a class="anchor" id="autotoc_md119"></a>
+<h4><a class="anchor" id="autotoc_md121"></a>
 Entity ID</h4>
 <p>The entity ID will be set according to the following, in decreasing order of priority:</p><ul>
 <li>the entity_id parameter of the [AVB_AVDECC_ENTITY_n] section of the configuration file, if it is set and non-zero,</li>
@@ -286,14 +286,14 @@ Entity ID</h4>
 <blockquote class="doxtable">
 <p>To ensure uniqueness, the entity ID shall be set by the entity manufacturer using an EUI block that it owns. </p>
 </blockquote>
-<h4><a class="anchor" id="autotoc_md120"></a>
+<h4><a class="anchor" id="autotoc_md122"></a>
 Entity model ID</h4>
 <p>The entity model ID will be set to:</p><ul>
 <li>the entity model ID stored in the AEM definition file, if it is non-zero,</li>
 <li>the entity ID value otherwise.</li>
 </ul>
 <hr  />
-<h1><a class="anchor" id="autotoc_md122"></a>
+<h1><a class="anchor" id="autotoc_md124"></a>
 Defining an AVDECC entity description</h1>
 <p>The current descriptions are using the following:</p>
 <p>Audio characteristics:</p><ul>
@@ -346,7 +346,7 @@ Defining an AVDECC entity description</h1>
 </ul>
 </li>
 </ul>
-<h3><a class="anchor" id="autotoc_md123"></a>
+<h3><a class="anchor" id="autotoc_md125"></a>
 AEM configuration file format</h3>
 <p>The AVDECC entity description is stored in some AEM configuration files, used to set the capabilities of the AVB node. The binary format of the AEM file is as follows. The file starts with a fixed header with information on the number of each descriptor type, present in the file, and their size. All descriptors of a given type have the same size. There are 38 types of descriptors as specified in IEEE Std 1722.1-2013, section 7.2.</p>
 <table class="markdownTable">
@@ -389,7 +389,7 @@ AEM configuration file format</h3>
 <td class="markdownTableBodyNone">152 + total_0 * size_0 + (total_1 - 1) * size_1 </td><td class="markdownTableBodyCenter">size_1 </td><td class="markdownTableBodyCenter">1 </td><td class="markdownTableBodyCenter">total_1 - 1  </td></tr>
 </table>
 <hr  />
-<h1><a class="anchor" id="autotoc_md125"></a>
+<h1><a class="anchor" id="autotoc_md127"></a>
 AVB Startup Options</h1>
 <p>The AVB stack accepts command line options which are documented in this section.</p>
 <ul>
@@ -398,7 +398,7 @@ AVB Startup Options</h1>
 <li>-h prints help text</li>
 </ul>
 <hr  />
-<h1><a class="anchor" id="autotoc_md127"></a>
+<h1><a class="anchor" id="autotoc_md129"></a>
 Endpoint, entity and application constraints</h1>
 <p>The AVB stack currently supports the following AVDECC roles:</p><ul>
 <li>talker (both for streaming and control),</li>

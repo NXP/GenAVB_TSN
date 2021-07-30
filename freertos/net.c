@@ -357,10 +357,11 @@ static int net_tx_ts_get(struct net_tx *tx, uint64_t *ts, unsigned int *private)
 	if (rc < 0)
 		goto err;
 
-	*ts = ts_desc.ts;
-	*private = ts_desc.priv;
-
-	os_log(LOG_DEBUG, "socket(%p) ts %"PRIu64" type %lu\n", tx->socket, *ts, *private);
+	if (rc) {
+		*ts = ts_desc.ts;
+		*private = ts_desc.priv;
+		os_log(LOG_DEBUG, "socket(%p) ts %"PRIu64" type %lu\n", tx->socket, *ts, *private);
+	}
 
 	return rc;
 

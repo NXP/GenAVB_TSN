@@ -77,6 +77,21 @@ err:
 	return rc;
 }
 
+int genavb_control_enable_callback(struct genavb_control_handle *handle)
+{
+	int rc;
+
+	if (ipc_rx_enable_callback(&handle->rx) < 0) {
+		rc = -GENAVB_ERR_CTRL_INIT;
+		goto err;
+	}
+
+	return GENAVB_SUCCESS;
+
+err:
+	return rc;
+}
+
 int genavb_control_open(struct genavb_handle const *genavb, struct genavb_control_handle **control, genavb_control_id_t id)
 {
 	int rc;

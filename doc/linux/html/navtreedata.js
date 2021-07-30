@@ -24,8 +24,8 @@ var NAVTREE =
 [
   [ "GenAVB/TSN", "index.html", [
     [ "Introduction", "index.html", [
-      [ "AVB", "index.html#autotoc_md136", null ],
-      [ "TSN", "index.html#autotoc_md137", null ]
+      [ "AVB", "index.html#autotoc_md138", null ],
+      [ "TSN", "index.html#autotoc_md139", null ]
     ] ],
     [ "Initialization API usage", "init_usage.html", null ],
     [ "Streaming API usage", "streaming_usage.html", [
@@ -117,16 +117,16 @@ var NAVTREE =
       [ "Configuration files (/etc/genavb/fgptp.cfg[-N])", "fgptp_usage.html#autotoc_md67", null ]
     ] ],
     [ "GenAVB Configuration", "genavb_config.html", [
-      [ "Main Configuration", "genavb_config.html#autotoc_md99", null ],
-      [ "Application profile parameters", "genavb_config.html#autotoc_md104", null ],
-      [ "GenAVB stack profile parameters", "genavb_config.html#autotoc_md111", null ],
-      [ "Defining an AVDECC entity description", "genavb_config.html#autotoc_md122", null ],
-      [ "AVB Startup Options", "genavb_config.html#autotoc_md125", null ],
-      [ "Endpoint, entity and application constraints", "genavb_config.html#autotoc_md127", null ]
+      [ "Main Configuration", "genavb_config.html#autotoc_md101", null ],
+      [ "Application profile parameters", "genavb_config.html#autotoc_md106", null ],
+      [ "GenAVB stack profile parameters", "genavb_config.html#autotoc_md113", null ],
+      [ "Defining an AVDECC entity description", "genavb_config.html#autotoc_md124", null ],
+      [ "AVB Startup Options", "genavb_config.html#autotoc_md127", null ],
+      [ "Endpoint, entity and application constraints", "genavb_config.html#autotoc_md129", null ]
     ] ],
     [ "Linux platform specific", "platform_linux.html", [
-      [ "Media clock driver", "platform_linux.html#autotoc_md128", [
-        [ "DMA based recovery and generation", "platform_linux.html#autotoc_md129", [
+      [ "Media clock driver", "platform_linux.html#autotoc_md130", [
+        [ "DMA based recovery and generation", "platform_linux.html#autotoc_md131", [
           [ "[FGPTP_GENERAL]", "fgptp_usage.html#autotoc_md68", [
             [ "profile", "fgptp_usage.html#autotoc_md69", null ],
             [ "grand master ID", "fgptp_usage.html#autotoc_md70", null ],
@@ -161,32 +161,34 @@ var NAVTREE =
           [ "[FGPTP_PORTn]", "fgptp_usage.html#autotoc_md95", null ],
           [ "port role", "fgptp_usage.html#autotoc_md96", null ],
           [ "ptp port enabled", "fgptp_usage.html#autotoc_md97", null ],
-          [ "Configuration profile", "genavb_config.html#autotoc_md100", null ],
-          [ "Auto start", "genavb_config.html#autotoc_md101", null ],
-          [ "Setting system clock to be gPTP-based", "genavb_config.html#autotoc_md102", null ],
-          [ "Fast connect mode", "genavb_config.html#autotoc_md105", null ],
-          [ "Defining a media application", "genavb_config.html#autotoc_md106", null ],
-          [ "Defining a controller application", "genavb_config.html#autotoc_md107", null ],
-          [ "Custom controller parameters", "genavb_config.html#autotoc_md108", null ],
-          [ "Defining a control application", "genavb_config.html#autotoc_md109", null ],
-          [ "Section [AVB_GENERAL]", "genavb_config.html#autotoc_md112", null ],
-          [ "Section [AVB_AVDECC]", "genavb_config.html#autotoc_md113", null ],
-          [ "Section [AVB_AVDECC_ENTITY_1]", "genavb_config.html#autotoc_md114", null ],
-          [ "Section [AVB_AVDECC_ENTITY_2]", "genavb_config.html#autotoc_md115", null ],
-          [ "Section [AVB_MSRP]", "genavb_config.html#autotoc_md116", null ],
-          [ "Custom AEM parameters", "genavb_config.html#autotoc_md117", [
-            [ "Association ID", "genavb_config.html#autotoc_md118", null ],
-            [ "Entity ID", "genavb_config.html#autotoc_md119", null ],
-            [ "Entity model ID", "genavb_config.html#autotoc_md120", null ]
+          [ "Rx timestamping compensation delay", "fgptp_usage.html#autotoc_md98", null ],
+          [ "Tx timestamping compensation delay", "fgptp_usage.html#autotoc_md99", null ],
+          [ "Configuration profile", "genavb_config.html#autotoc_md102", null ],
+          [ "Auto start", "genavb_config.html#autotoc_md103", null ],
+          [ "Setting system clock to be gPTP-based", "genavb_config.html#autotoc_md104", null ],
+          [ "Fast connect mode", "genavb_config.html#autotoc_md107", null ],
+          [ "Defining a media application", "genavb_config.html#autotoc_md108", null ],
+          [ "Defining a controller application", "genavb_config.html#autotoc_md109", null ],
+          [ "Custom controller parameters", "genavb_config.html#autotoc_md110", null ],
+          [ "Defining a control application", "genavb_config.html#autotoc_md111", null ],
+          [ "Section [AVB_GENERAL]", "genavb_config.html#autotoc_md114", null ],
+          [ "Section [AVB_AVDECC]", "genavb_config.html#autotoc_md115", null ],
+          [ "Section [AVB_AVDECC_ENTITY_1]", "genavb_config.html#autotoc_md116", null ],
+          [ "Section [AVB_AVDECC_ENTITY_2]", "genavb_config.html#autotoc_md117", null ],
+          [ "Section [AVB_MSRP]", "genavb_config.html#autotoc_md118", null ],
+          [ "Custom AEM parameters", "genavb_config.html#autotoc_md119", [
+            [ "Association ID", "genavb_config.html#autotoc_md120", null ],
+            [ "Entity ID", "genavb_config.html#autotoc_md121", null ],
+            [ "Entity model ID", "genavb_config.html#autotoc_md122", null ]
           ] ],
-          [ "AEM configuration file format", "genavb_config.html#autotoc_md123", null ],
-          [ "AVB DMA node", "platform_linux.html#autotoc_md130", null ],
-          [ "CS2000 node", "platform_linux.html#autotoc_md131", null ],
-          [ "MLE14570", "platform_linux.html#autotoc_md132", null ]
+          [ "AEM configuration file format", "genavb_config.html#autotoc_md125", null ],
+          [ "AVB DMA node", "platform_linux.html#autotoc_md132", null ],
+          [ "CS2000 node", "platform_linux.html#autotoc_md133", null ],
+          [ "MLE14570", "platform_linux.html#autotoc_md134", null ]
         ] ],
-        [ "Internal audio PLL recovery", "platform_linux.html#autotoc_md133", [
-          [ "AVB internal recovery node", "platform_linux.html#autotoc_md134", null ],
-          [ "AVB HW timer node", "platform_linux.html#autotoc_md135", null ]
+        [ "Internal audio PLL recovery", "platform_linux.html#autotoc_md135", [
+          [ "AVB internal recovery node", "platform_linux.html#autotoc_md136", null ],
+          [ "AVB HW timer node", "platform_linux.html#autotoc_md137", null ]
         ] ]
       ] ]
     ] ],
@@ -197,10 +199,10 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "clock_usage.html",
-"group__aem.html#gade22f6ab6f1e5948679bdb96bc327198",
-"group__control.html#a3998dc2f4f6524fcf1d090312b5e18e1",
-"group__control.html#uniongenavb__msg__mvrp",
-"group__socket.html#ae626117b1c6419ab383e0da3320cc5ef"
+"group__aem.html#ga74b331ed6e461ef64245eef8ec19d862",
+"group__control.html#a375f0d6fdba9988a6cbae87ccf708ada",
+"group__control.html#uniongenavb__msg__gptp",
+"group__socket.html#ad48e660c03cf1f4eb7d8838960dac91e"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

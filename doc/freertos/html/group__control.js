@@ -321,6 +321,7 @@ var group__control =
       [ "ACTIVE_LISTENER", "group__control.html#gga7db6154bc5bf00826fa525fb995f2c55a79009fe9559cb0e89e35ecaad22a19ef", null ]
     ] ],
     [ "genavb_control_set_callback", "group__control.html#ga3e1d22e6b4342f790bf25356bd2ce3ca", null ],
+    [ "genavb_control_enable_callback", "group__control.html#ga5bae84d73770286c9225bd9581163133", null ],
     [ "genavb_control_open", "group__control.html#ga5578fc52cccd9d59af19d6301c997b30", null ],
     [ "genavb_control_send", "group__control.html#ga5fd11898e51c3fc774946f7c87e830ec", null ],
     [ "genavb_control_send_sync", "group__control.html#ga7aeadc33999c312331793c2eddff0a8c", null ],

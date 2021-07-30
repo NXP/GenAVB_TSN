@@ -137,8 +137,8 @@ void net_socket_stats_print(struct net_socket *sock)
 
 	if (stats->pending) {
 		INF("net %s socket(%p) %d", sock->dir ? "tx" : "rx", sock, sock->id);
-		INF("frames            : %u", stats->frames);
-		INF("frames err        : %u", stats->frames_err);
+		INF("frames     : %u", stats->frames);
+		INF("err        : %u", stats->err);
 
 		opcua_update_net_socket_stats(sock);
 
@@ -183,7 +183,7 @@ int tsn_net_receive_sock(struct net_socket *sock)
 		status = NET_NO_FRAME;
 	} else {
 		status = NET_ERR;
-		sock->stats.frames_err++;
+		sock->stats.err++;
 	}
 
 	return status;
@@ -200,7 +200,7 @@ int tsn_net_transmit_sock(struct net_socket *sock)
 		sock->stats.frames++;
 	} else {
 		status = NET_ERR;
-		sock->stats.frames_err++;
+		sock->stats.err++;
 	}
 
 	return status;

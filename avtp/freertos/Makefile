@@ -1,0 +1,1 @@
+avb-obj:= main.o

@@ -1,0 +1,49 @@
+set(modules_obj_dir ${CMAKE_BINARY_DIR}/modules)
+
+list(APPEND modules_src
+  ${CMAKE_SOURCE_DIR}/linux/modules/common/*
+)
+
+if(CONFIG_NET_STD OR CONFIG_NET_XDP)
+  list(APPEND modules_src
+    ${CMAKE_SOURCE_DIR}/linux/modules/std/*
+    ${CMAKE_SOURCE_DIR}/common/os/queue_common.c
+    ${CMAKE_SOURCE_DIR}/common/os/queue_common.h
+  )
+else()
+  list(APPEND modules_src
+    ${CMAKE_SOURCE_DIR}/linux/modules/avb/*
+    ${CMAKE_SOURCE_DIR}/common/os/*
+    ${CMAKE_SOURCE_DIR}/public/sr_class.c
+    ${CMAKE_SOURCE_DIR}/public/qos.c
+  )
+endif()
+
+add_custom_command(
+  OUTPUT ${modules_obj_dir}
+  COMMAND mkdir -p ${modules_obj_dir}
+  COMMAND cp -a ${modules_src} ${modules_obj_dir}/.
+  DEPENDS ${modules_src}
+)
+
+add_custom_target(modules-dir
+  DEPENDS ${modules_obj_dir}
+)
+
+add_custom_target(modules ALL
+  DEPENDS modules-dir
+  COMMAND $(MAKE) -C ${modules_obj_dir} modules
+  MAKEFLAGS=
+  ${cmake_config_options}
+  CONFIG_DEFINES="${cmake_config_defines}"
+  KERNELDIR=${KERNELDIR}
+  NXP_SWITCH_PATH=${NXP_SWITCH_PATH}
+  GENAVB_INCLUDE=${TOPDIR}/include
+  COMMENT "Building modules"
+)
+
+install(CODE "execute_process(COMMAND make -C ${KERNELDIR} M=${modules_obj_dir} modules_install INSTALL_MOD_PATH=${CMAKE_BINARY_DIR}/target INSTALL_MOD_DIR=genavb)")
+
+add_custom_target(uninstall
+  COMMAND rm -rf ${CMAKE_BINARY_DIR}/target
+)

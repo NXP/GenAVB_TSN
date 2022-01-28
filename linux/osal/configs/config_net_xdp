@@ -1,0 +1,3 @@
+# CONFIG_SJA1105 is not set
+#CONFIG_NET_STD is not set
+CONFIG_NET_XDP=y

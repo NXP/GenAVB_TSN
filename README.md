@@ -1,20 +1,40 @@
 GenAVB/TSN
 ----------
-GenAVB/TSN is a NXP generic AVB/TSN stack for NXP MCUs and MPUs. It is cross-platform,
-currently supporting Linux and FreeRTOS.
+GenAVB/TSN is a generic AVB/TSN stack developed by NXP for NXP MCUs and MPUs.
+It is cross-platform, currently supporting Linux and FreeRTOS.
 
 
-Development environment
------------------------
-- Linux host system and development tools (git, make, doxygen for the docs, ...)
-- ARM gcc toolchain is sufficient for the stack. However building the linux
-applications require a more complete cross-compilation SDK (alsa, gstreamer and qt5 dependencies)
+Supported hardware targets and configurations
+---------------------------------------------
+This project supports several hardware targets and several different
+configuration modes. The table below summarizes the supported combinations,
+overall and for this specific release:
+- **O**: supported by the project and on this specific release
+- x: supported by the project, but not on this release
+- empty cell: unsupported combination
+
+|                 | AVB endpoint | TSN endpoint | bridge | hybrid |
+| :-------------: | :----------: | :----------: | :----: | :----: |
+| linux i.MX6     |      x       |              |    x   |    x   |
+| linux i.MX8     |      x       |      x       |    x   |    x   |
+| linux LS1028    |              |              |    x   |        |
+| freertos RT1052 |    **O**     |      x       |        |        |
+| freertos RT1176 |    **O**     |    **O**     |        |        |
+
+
+Features
+--------
+- IEEE-802.1AS-2020 implementation, both time-aware Bridge and Endpoint support.
+- IEEE-802.1Qat-2010 implementation.
+- Binary protocol stacks running in standalone userspace processes.
+- Public API provided by binary library plus header files.
+- Example applications.
 
 
 Repository structure
 --------------------
 - api:      the public API
-- apps:     demo applications
+- apps:     source code and makefiles for example applications
 - avdecc:   IEEE 1722.1-2013 component stack
 - avtp:     IEEE 1722-2016 component stack
 - common:   common code
@@ -39,6 +59,16 @@ Local configuration files can be included by the build system in order to
 to define some variables specific to the developer environment.
 The local config file name is `./local_config_${target}.cmake`
 
+
+Build requirements
+------------------
+- Linux host system and development tools (git, make, doxygen for the docs, ...)
+- An ARM gcc toolchain is sufficient for the stack. However building the linux
+applications requires a more complete cross-compilation SDK (because of
+additional dependencies such as alsa, gstreamer and qt5).
+- AVB endpoint builds depend on custom changes to the Linux kernel and Yocto distribution: https://www.nxp.com/design/software/embedded-software/audio-video-bridging-software:AVB-SOFTWARE
+- FreeRTOS builds require additional MCUXpresso SDK software: https://www.nxp.com/design/software/development-software/mcuxpresso-software-and-tools-/wired-communications-middleware-for-nxp-microcontrollers:WIRED-COMM-MIDDLEWARE?tab=Design_Tools_Tab
+
 ### FreeRTOS
 Currently GenAVB/TSN stack support only ARM gcc toolchain for FreeRTOS targets.
 To be able to build the stack, ARMGCC_DIR environement variable pointing
@@ -54,8 +84,10 @@ set(FREERTOS_APPS "/path/to/freertos_avb_apps" CACHE PATH "Path to FreeRTOS GenA
 ```
 
 ### Linux
-Usually Linux target is built using a complete Yocto SDK toolchain which sets
-environment variables for cross-compilation.
+The Linux target is usually built using a complete toolchain, which helps
+setting most of the environment variables required for cross-compilation.
+In the case of a Yocto SDK/toolchain for example, the following command will
+setup $CROSS_COMPILE as well as other related environment variables:
 
 ```
 source /path/to/yocto/toolchain/environement-setup-xxx
@@ -87,26 +119,7 @@ where target and config are optional. If no config is defined, all available
 configurations for specified target are built. If no target is specified the default
 is linux_imx6.
 
-### target
-The following targets are supported:
-- linux_imx6
-- linux_imx8
-- linux_ls1028
-- freertos_rt1052
-- freertos_rt1176
-
-### config
-The build configurations can be found in ./configs directory.
-
-The following configurations are supported:
-- endpoint_avb (full featured AVB endpoint)
-- endpoint_tsn
-- hybrid
-- bridge
-
-
 ### Generated binaries
-
 The generated binaries are installed under \<build directory\>/
 
 ### Installing binaries to target
@@ -115,5 +128,5 @@ The generated binaries are installed under \<build directory\>/
 Copy the content of \<build directory\>/target/ to the root directory of the target filesystem
 
 #### FreeRTOS
-Refer to the FreeRTOS apps README
+Refer to the FreeRTOS apps README.
 

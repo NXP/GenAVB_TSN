@@ -2,6 +2,6 @@
 #ifndef _VERSION_H_
 #define _VERSION_H_
 
-#define GENAVB_VERSION "4_3_0"
+#define GENAVB_VERSION "4_3_1"
 
 #endif /* _VERSION_H_ */

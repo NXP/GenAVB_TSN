@@ -1,0 +1,124 @@
+#
+# To be sourced in build shell, AFTER toolchain environment
+#
+#
+_make_genavb_complete()
+{
+	COMPREPLY=()
+	local curr_word="${COMP_WORDS[COMP_CWORD]}"
+
+	case $COMP_CWORD in
+		1)
+			local first_arg=("freertos_imx8mm_ca53" "freertos_imx8mn_ca53" \
+					"freertos_imx8mp_ca53" "freertos_rt1052" "freertos_rt1176" \
+					"freertos_rt1189_cm33" "linux_imx6" "linux_imx6ull" "linux_imx8" \
+					"linux_ls1028")
+
+			if [ $1 = "clean_genavb" ]; then
+				first_arg+=("all")
+			fi
+
+			COMPREPLY=( $(compgen -W "${first_arg[*]}" $curr_word) )
+			;;
+		*)
+			if [ ${COMP_WORDS[1]} != "all" ]; then
+				proc_args "${COMP_WORDS[1]}"
+				COMPREPLY=( $(compgen -W  "${CONFIG_ARR[*]}" $curr_word) )
+			fi
+			;;
+	esac
+}
+
+complete -F _make_genavb_complete make_genavb
+complete -F _make_genavb_complete clean_genavb
+
+proc_args()
+{
+	TARGET=$1
+	shift
+	local config_arr=("$@")
+
+	if [ -z "$TARGET" ]; then
+		TARGET=linux_imx6
+	fi
+
+	if [ ${#config_arr[@]} -eq 0 ]; then
+		case $TARGET in
+			"linux_imx6")
+				CONFIG_ARR=("endpoint_avb")
+				;;
+			"linux_imx6ull")
+				CONFIG_ARR=("endpoint_avb")
+				;;
+			"linux_imx8")
+				CONFIG_ARR=("endpoint_avb" "endpoint_tsn" "endpoint_avb_tsn")
+				;;
+			"linux_ls1028")
+				CONFIG_ARR=("bridge")
+				;;
+			"freertos_rt1052")
+				CONFIG_ARR=("endpoint_avb" "endpoint_tsn")
+				;;
+			"freertos_rt1176")
+				CONFIG_ARR=("endpoint_avb" "endpoint_tsn")
+				;;
+			"freertos_imx8mm_ca53")
+				CONFIG_ARR=("endpoint_avb" "endpoint_tsn")
+				;;
+			"freertos_imx8mn_ca53")
+				CONFIG_ARR=("endpoint_avb" "endpoint_tsn")
+				;;
+			"freertos_imx8mp_ca53")
+				CONFIG_ARR=("endpoint_avb" "endpoint_tsn")
+				;;
+			"freertos_rt1189_cm33")
+				CONFIG_ARR=("endpoint_tsn")
+				;;
+			*)
+				echo "unknown target"
+				return -1
+				;;
+		esac
+	else
+		CONFIG_ARR=("${config_arr[@]}")
+	fi
+}
+
+# Usage: make_genavb [target] [config_list]
+make_genavb()
+{
+	proc_args $@
+
+	if [ -z "$SDKTARGETSYSROOT" ]; then
+		CMAKE_TOOLCHAIN=-DCMAKE_TOOLCHAIN_FILE=./config_armgcc.cmake
+	fi
+
+	for config in "${CONFIG_ARR[@]}"
+	do
+		local BUILD_PATH=build/$TARGET/$config
+
+		cmake . -B$BUILD_PATH -DCONFIG=$config -DTARGET=$TARGET $CMAKE_TOOLCHAIN || return -1
+		make -j`nproc` -C $BUILD_PATH install || return -1
+	done
+}
+
+# Usage: clean_genavb [target] [config_list] or clean_genavb all
+clean_genavb()
+{
+	if [ $# -eq 0 ] || [ $1 = "all" ]; then
+		if [ -d ./build ]; then
+			rm -r ./build
+			echo "Deleted $(pwd)/build"
+		fi
+	else
+		proc_args $@
+
+		for config in "${CONFIG_ARR[@]}"
+		do
+			if [ -d ./build/$TARGET/$config ]; then
+				rm -r ./build/$TARGET/$config
+				echo "Deleted $(pwd)/build/$TARGET/$config"
+			fi
+		done
+	fi
+}

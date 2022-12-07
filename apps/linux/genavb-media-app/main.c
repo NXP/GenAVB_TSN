@@ -702,7 +702,10 @@ static void talker_connect(struct avb_stream_params *params, unsigned int avdecc
 	} else {
 
 		/* Before connecting any AVTP stream, check if we need to set the clock domain source for AVB_CLOCK_DOMAIN_0 */
-		init_media_clock_source(0, NULL);
+		if (init_media_clock_source(0, NULL) < 0) {
+			printf("%s:  init_media_clock_source() failed for AVB_CLOCK_DOMAIN_0, can not connect stream output (%u)\n", __func__, avdecc_stream_index);
+			return;
+		}
 
 		if ((avdecc_format_is_aaf_pcm(&params->format)) || ((avdecc_format_is_61883_6(&params->format)) && (avdecc_talker->requested_type != STREAM_GST) && (avdecc_talker->requested_type != STREAM_MULTI_GST))) {
 			struct alsa_stream *talker = &alsa_talker_stream[avdecc_talker->alsa.index];
@@ -781,7 +784,10 @@ static void listener_connect(struct avb_stream_params *params, unsigned int avde
 			avdecc_listener->handler_type = STREAM_CRF;
 	} else {
 		/* Before connecting any AVTP stream, check if we need to set the clock domain source for AVB_CLOCK_DOMAIN_0 */
-		init_media_clock_source(0, params);
+		if (init_media_clock_source(0, params) < 0) {
+			printf("%s:  init_media_clock_source() failed for AVB_CLOCK_DOMAIN_0, can not connect stream input (%u)\n", __func__, avdecc_stream_index);
+			return;
+		}
 
 		if ((avdecc_format_is_aaf_pcm(&params->format)) || ((avdecc_format_is_61883_6(&params->format)) && (avdecc_listener->requested_type != STREAM_GST))) {
 			struct alsa_stream *listener = &alsa_listener_stream[avdecc_listener->alsa.index];

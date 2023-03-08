@@ -1,0 +1,580 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainForm</class>
+ <widget class="QWidget" name="MainForm">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1024</width>
+    <height>692</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>0</width>
+    <height>20</height>
+   </size>
+  </property>
+  <property name="font">
+   <font>
+    <family>DejaVu Sans</family>
+    <pointsize>24</pointsize>
+   </font>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QPushButton {
+    border: 2px solid #8f8f8f;
+    border-radius: 0px;
+    background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1,
+                                      stop: 0 #f8f8f8, stop: 1 #dcdcdc);
+    min-width: 80px;
+}
+
+QPushButton:pressed {
+    background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1,
+                                      stop: 0 #dcdcdc, stop: 1 #f8f8f8);
+}
+
+QPushButton:flat {
+    border: none; /* no border for a flat push button */
+}
+
+QPushButton:default {
+    border-color: navy; /* make the default button prominent */
+}
+
+QComboBox {
+    border: none;
+    border-radius: 0px;
+    padding: 1px 18px 1px 6px;
+    min-width: 6em;
+}
+
+QComboBox:editable {
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                 stop: 0 #f8f8f8, stop: 0.4 #ededed,
+                                 stop: 0.5 #e8e8e8, stop: 1.0 #dcdcdc);
+}
+
+QComboBox:!editable, QComboBox::drop-down:editable {
+     border: none;
+     background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                 stop: 0 #f8f8f8, stop: 0.4 #ededed,
+                                 stop: 0.5 #e8e8e8, stop: 1.0 #dcdcdc);
+}
+
+/* QComboBox gets the &quot;on&quot; state when the popup is open */
+QComboBox:!editable:on, QComboBox::drop-down:editable:on {
+    border: none;
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+/*                                stop: 0 #dcdcdc, stop: 0.4 #e8e8e8, */
+                                stop: 0 #ededed, stop: 1.0 #f8f8f8);
+}
+
+QComboBox:on { /* shift the text when the popup opens */
+    padding-top: 1px;
+    padding-left: 6px;
+}
+
+
+QComboBox::drop-down {
+    border: none;
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 0px;
+
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                stop: 0 #ededed, stop: 1.0 #f8f8f8);
+}
+
+
+QComboBox QAbstractItemView {
+    border: none;
+    selection-background-color: lightblue;
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                stop: 0 #dcdcdc, stop: 1.0 #e8e8e8);
+}
+
+QSlider::groove:vertical {
+    border: 1px solid #999999;
+    border-radius: 0px;
+    width: 16px; /* the groove expands to the size of the slider by default. by giving it a height, it has a fixed size */
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #dcdcdc, stop:1 #f8f8f8);
+    margin: 2px 0;
+}
+
+QSlider::handle:vertical {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #f8f8f8, stop:1 #dcdcdc);
+    border: none;
+    heights: 40px;
+    margin: -20px -32px; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
+    border-radius: 0px;
+}
+
+QSlider::add-page:vertical {
+    background: lightblue;
+}
+
+QSlider::sub-page:vertical {
+    background: #c0c0c0;
+}
+</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <property name="horizontalSpacing">
+    <number>12</number>
+   </property>
+   <property name="verticalSpacing">
+    <number>6</number>
+   </property>
+   <item row="1" column="1">
+    <widget class="QPushButton" name="m_btnStartPause">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>15</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>84</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="gui_elements.qrc">
+       <normaloff>:/resources/resources/developpers_Play.png</normaloff>:/resources/resources/developpers_Play.png</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>64</width>
+       <height>64</height>
+      </size>
+     </property>
+     <property name="flat">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="2">
+    <widget class="QPushButton" name="m_btnStop">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>15</horstretch>
+       <verstretch>1</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>84</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="gui_elements.qrc">
+       <normaloff>:/resources/resources/developpers_Stop.png</normaloff>:/resources/resources/developpers_Stop.png</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>64</width>
+       <height>64</height>
+      </size>
+     </property>
+     <property name="shortcut">
+      <string>Ctrl+S, Ctrl+S</string>
+     </property>
+     <property name="flat">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0" colspan="3">
+    <widget class="QWidget" name="widget" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>80</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QComboBox" name="media_combo">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>60</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="palette">
+      <palette>
+       <active>
+        <colorrole role="Button">
+         <brush brushstyle="LinearGradientPattern">
+          <gradient startx="0.000000000000000" starty="0.000000000000000" endx="0.000000000000000" endy="1.000000000000000" type="LinearGradient" spread="PadSpread" coordinatemode="ObjectBoundingMode">
+           <gradientstop position="0.000000000000000">
+            <color alpha="255">
+             <red>248</red>
+             <green>248</green>
+             <blue>248</blue>
+            </color>
+           </gradientstop>
+           <gradientstop position="0.400000000000000">
+            <color alpha="255">
+             <red>237</red>
+             <green>237</green>
+             <blue>237</blue>
+            </color>
+           </gradientstop>
+           <gradientstop position="0.500000000000000">
+            <color alpha="255">
+             <red>232</red>
+             <green>232</green>
+             <blue>232</blue>
+            </color>
+           </gradientstop>
+           <gradientstop position="1.000000000000000">
+            <color alpha="255">
+             <red>220</red>
+             <green>220</green>
+             <blue>220</blue>
+            </color>
+           </gradientstop>
+          </gradient>
+         </brush>
+        </colorrole>
+        <colorrole role="Base">
+         <brush brushstyle="LinearGradientPattern">
+          <gradient startx="0.000000000000000" starty="0.000000000000000" endx="0.000000000000000" endy="1.000000000000000" type="LinearGradient" spread="PadSpread" coordinatemode="ObjectBoundingMode">
+           <gradientstop position="0.000000000000000">
+            <color alpha="255">
+             <red>248</red>
+             <green>248</green>
+             <blue>248</blue>
+            </color>
+           </gradientstop>
+           <gradientstop position="0.400000000000000">
+            <color alpha="255">
+             <red>237</red>
+             <green>237</green>
+             <blue>237</blue>
+            </color>
+           </gradientstop>
+           <gradientstop position="0.500000000000000">
+            <color alpha="255">
+             <red>232</red>
+             <green>232</green>
+             <blue>232</blue>
+            </color>
+           </gradientstop>
+           <gradientstop position="1.000000000000000">
+            <color alpha="255">
+             <red>220</red>
+             <green>220</green>
+             <blue>220</blue>
+            </color>
+           </gradientstop>
+          </gradient>
+         </brush>
+        </colorrole>
+        <colorrole role="Window">
+         <brush brushstyle="LinearGradientPattern">
+          <gradient startx="0.000000000000000" starty="0.000000000000000" endx="0.000000000000000" endy="1.000000000000000" type="LinearGradient" spread="PadSpread" coordinatemode="ObjectBoundingMode">
+           <gradientstop position="0.000000000000000">
+            <color alpha="255">
+             <red>248</red>
+             <green>248</green>
+             <blue>248</blue>
+            </color>
+           </gradientstop>
+           <gradientstop position="0.400000000000000">
+            <color alpha="255">
+             <red>237</red>
+             <green>237</green>
+             <blue>237</blue>
+            </color>
+           </gradientstop>
+           <gradientstop position="0.500000000000000">
+            <color alpha="255">
+             <red>232</red>
+             <green>232</green>
+             <blue>232</blue>
+            </color>
+           </gradientstop>
+           <gradientstop position="1.000000000000000">
+            <color alpha="255">
+             <red>220</red>
+             <green>220</green>
+             <blue>220</blue>
+            </color>
+           </gradientstop>
+          </gradient>
+         </brush>
+        </colorrole>
+       </active>
+       <inactive>
+        <colorrole role="Button">
+         <brush brushstyle="LinearGradientPattern">
+          <gradient startx="0.000000000000000" starty="0.000000000000000" endx="0.000000000000000" endy="1.000000000000000" type="LinearGradient" spread="PadSpread" coordinatemode="ObjectBoundingMode">
+           <gradientstop position="0.000000000000000">
+            <color alpha="255">
+             <red>248</red>
+             <green>248</green>
+             <blue>248</blue>
+            </color>
+           </gradientstop>
+           <gradientstop position="0.400000000000000">
+            <color alpha="255">
+             <red>237</red>
+             <green>237</green>
+             <blue>237</blue>
+            </color>
+           </gradientstop>
+           <gradientstop position="0.500000000000000">
+            <color alpha="255">
+             <red>232</red>
+             <green>232</green>
+             <blue>232</blue>
+            </color>
+           </gradientstop>
+           <gradientstop position="1.000000000000000">
+            <color alpha="255">
+             <red>220</red>
+             <green>220</green>
+             <blue>220</blue>
+            </color>
+           </gradientstop>
+          </gradient>
+         </brush>
+        </colorrole>
+        <colorrole role="Base">
+         <brush brushstyle="LinearGradientPattern">
+          <gradient startx="0.000000000000000" starty="0.000000000000000" endx="0.000000000000000" endy="1.000000000000000" type="LinearGradient" spread="PadSpread" coordinatemode="ObjectBoundingMode">
+           <gradientstop position="0.000000000000000">
+            <color alpha="255">
+             <red>248</red>
+             <green>248</green>
+             <blue>248</blue>
+            </color>
+           </gradientstop>
+           <gradientstop position="0.400000000000000">
+            <color alpha="255">
+             <red>237</red>
+             <green>237</green>
+             <blue>237</blue>
+            </color>
+           </gradientstop>
+           <gradientstop position="0.500000000000000">
+            <color alpha="255">
+             <red>232</red>
+             <green>232</green>
+             <blue>232</blue>
+            </color>
+           </gradientstop>
+           <gradientstop position="1.000000000000000">
+            <color alpha="255">
+             <red>220</red>
+             <green>220</green>
+             <blue>220</blue>
+            </color>
+           </gradientstop>
+          </gradient>
+         </brush>
+        </colorrole>
+        <colorrole role="Window">
+         <brush brushstyle="LinearGradientPattern">
+          <gradient startx="0.000000000000000" starty="0.000000000000000" endx="0.000000000000000" endy="1.000000000000000" type="LinearGradient" spread="PadSpread" coordinatemode="ObjectBoundingMode">
+           <gradientstop position="0.000000000000000">
+            <color alpha="255">
+             <red>248</red>
+             <green>248</green>
+             <blue>248</blue>
+            </color>
+           </gradientstop>
+           <gradientstop position="0.400000000000000">
+            <color alpha="255">
+             <red>237</red>
+             <green>237</green>
+             <blue>237</blue>
+            </color>
+           </gradientstop>
+           <gradientstop position="0.500000000000000">
+            <color alpha="255">
+             <red>232</red>
+             <green>232</green>
+             <blue>232</blue>
+            </color>
+           </gradientstop>
+           <gradientstop position="1.000000000000000">
+            <color alpha="255">
+             <red>220</red>
+             <green>220</green>
+             <blue>220</blue>
+            </color>
+           </gradientstop>
+          </gradient>
+         </brush>
+        </colorrole>
+       </inactive>
+       <disabled>
+        <colorrole role="Button">
+         <brush brushstyle="LinearGradientPattern">
+          <gradient startx="0.000000000000000" starty="0.000000000000000" endx="0.000000000000000" endy="1.000000000000000" type="LinearGradient" spread="PadSpread" coordinatemode="ObjectBoundingMode">
+           <gradientstop position="0.000000000000000">
+            <color alpha="255">
+             <red>248</red>
+             <green>248</green>
+             <blue>248</blue>
+            </color>
+           </gradientstop>
+           <gradientstop position="0.400000000000000">
+            <color alpha="255">
+             <red>237</red>
+             <green>237</green>
+             <blue>237</blue>
+            </color>
+           </gradientstop>
+           <gradientstop position="0.500000000000000">
+            <color alpha="255">
+             <red>232</red>
+             <green>232</green>
+             <blue>232</blue>
+            </color>
+           </gradientstop>
+           <gradientstop position="1.000000000000000">
+            <color alpha="255">
+             <red>220</red>
+             <green>220</green>
+             <blue>220</blue>
+            </color>
+           </gradientstop>
+          </gradient>
+         </brush>
+        </colorrole>
+        <colorrole role="Base">
+         <brush brushstyle="LinearGradientPattern">
+          <gradient startx="0.000000000000000" starty="0.000000000000000" endx="0.000000000000000" endy="1.000000000000000" type="LinearGradient" spread="PadSpread" coordinatemode="ObjectBoundingMode">
+           <gradientstop position="0.000000000000000">
+            <color alpha="255">
+             <red>248</red>
+             <green>248</green>
+             <blue>248</blue>
+            </color>
+           </gradientstop>
+           <gradientstop position="0.400000000000000">
+            <color alpha="255">
+             <red>237</red>
+             <green>237</green>
+             <blue>237</blue>
+            </color>
+           </gradientstop>
+           <gradientstop position="0.500000000000000">
+            <color alpha="255">
+             <red>232</red>
+             <green>232</green>
+             <blue>232</blue>
+            </color>
+           </gradientstop>
+           <gradientstop position="1.000000000000000">
+            <color alpha="255">
+             <red>220</red>
+             <green>220</green>
+             <blue>220</blue>
+            </color>
+           </gradientstop>
+          </gradient>
+         </brush>
+        </colorrole>
+        <colorrole role="Window">
+         <brush brushstyle="LinearGradientPattern">
+          <gradient startx="0.000000000000000" starty="0.000000000000000" endx="0.000000000000000" endy="1.000000000000000" type="LinearGradient" spread="PadSpread" coordinatemode="ObjectBoundingMode">
+           <gradientstop position="0.000000000000000">
+            <color alpha="255">
+             <red>248</red>
+             <green>248</green>
+             <blue>248</blue>
+            </color>
+           </gradientstop>
+           <gradientstop position="0.400000000000000">
+            <color alpha="255">
+             <red>237</red>
+             <green>237</green>
+             <blue>237</blue>
+            </color>
+           </gradientstop>
+           <gradientstop position="0.500000000000000">
+            <color alpha="255">
+             <red>232</red>
+             <green>232</green>
+             <blue>232</blue>
+            </color>
+           </gradientstop>
+           <gradientstop position="1.000000000000000">
+            <color alpha="255">
+             <red>220</red>
+             <green>220</green>
+             <blue>220</blue>
+            </color>
+           </gradientstop>
+          </gradient>
+         </brush>
+        </colorrole>
+       </disabled>
+      </palette>
+     </property>
+     <property name="font">
+      <font>
+       <family>DejaVu Sans</family>
+       <pointsize>24</pointsize>
+      </font>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="3" rowspan="2">
+    <widget class="QSlider" name="m_volumeControl">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>10</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="gui_elements.qrc"/>
+ </resources>
+ <connections/>
+</ui>

@@ -588,7 +588,7 @@ echo "Using ps = ${PS}"
 NB_CPU=$(grep -c processor /proc/cpuinfo)
 if  [ "$NB_CPU" -gt 2 ];then
 	CPU_MASK=2
-else
+elif  [ "$NB_CPU" -eq 2 ];then
 	# On platforms with dual cores:
 	# tsn processes are pinned to core#1 for avb endpoint, and core#0 for tsn endpoint
 	if [ "$AVB_MODE" -eq 1 ];then
@@ -596,6 +596,8 @@ else
 	else
 		CPU_MASK=1
 	fi
+else
+	CPU_MASK=1
 fi
 
 # Detect the platform we are running on and set $MACHINE accordingly, then set variables.

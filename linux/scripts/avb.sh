@@ -819,7 +819,7 @@ fi
 if  [ "$NB_CPU" -gt 2 ];then
 	MEDIA_APP_CPU_MASK=4
 	MEDIA_APP_CPU_CORE=2
-else
+elif  [ "$NB_CPU" -eq 2 ];then
 	if [ $AVB_MODE -eq 1 ]; then
 		MEDIA_APP_CPU_MASK=1
 		MEDIA_APP_CPU_CORE=0
@@ -828,6 +828,9 @@ else
 		MEDIA_APP_CPU_MASK=2
 		MEDIA_APP_CPU_CORE=1
 	fi
+else
+	MEDIA_APP_CPU_MASK=1
+	MEDIA_APP_CPU_CORE=0
 fi
 
 # Detect the platform we are running on and set $MACHINE accordingly, then set variables.

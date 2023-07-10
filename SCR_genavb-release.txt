@@ -1,0 +1,53 @@
+NXP Software Content Register
+
+Release Name:           genavb-sdk
+Version:                GenAVB/TSN 5_7_0
+Date Created:           July-2023
+Release Location:       https://github.com/NXP/GenAVB_TSN
+Description:            GenAVB/TSN protocol stack for NXP MPUs and MCUs processors
+
+----------------------------------------
+
+Package:                        api
+                                avdecc
+                                avtp
+                                common
+                                configs
+                                freertos
+                                gptp
+                                linux
+                                maap
+                                management
+                                os
+                                srp
+Outgoing License:               BSD-3-Clause
+License File:                   licenses/BSD-3-Clause
+Package Category:               GenAVB/TSN Stack
+Type of content:                Source code
+Description and comments:       GenAVB/TSN library
+Origin:                         NXP (BSD-3-Clause)
+
+Package:                        include
+Outgoing License:               BSD-3-Clause
+License File:                   licenses/BSD-3-Clause
+Package Category:               GenAVB/TSN Stack
+Description and comments:       GenAVB/TSN header files
+Type of content:                Source code
+Origin:                         NXP (BSD-3-Clause)
+
+Package:                        linux/modules
+Outgoing License:               GPL-2.0-or-later
+License File:                   licenses/COPYING
+Package Category:               GenAVB/TSN Stack
+Description and comments:       Linux modules driver for GenAVB/TSN stack
+Type of content:                Source code
+Origin:                         NXP (GPL-2.0-or-later)
+
+Package:                        apps
+                                public
+Outgoing License:               BSD-3-Clause
+License File:                   licenses/BSD-3-Clause
+Package Category:               GenAVB/TSN Stack examples
+Description and comments:       GenAVB/TSN example applications
+Type of content:                Source code
+Origin:                         NXP (BSD-3-Clause)

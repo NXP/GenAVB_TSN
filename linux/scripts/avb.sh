@@ -624,6 +624,20 @@ set_cpu_power_management()
 
 }
 
+disable_dynamic_freq_scaling()
+{
+	case "$MACHINE" in
+	'imx93evk')
+		# Disable DDR scaling
+		echo "0" > /sys/devices/platform/imx93-lpm/auto_clk_gating
+		echo "Disable DDR frequency scaling"
+		;;
+	*)
+		return
+		;;
+	esac
+}
+
 setup()
 {
 	# Set userspace governor with the desired CPU frequency
@@ -639,6 +653,9 @@ setup()
 
 	# Disable CPU idle deep state transitions exceeding 10us
 	set_cpu_power_management 0
+
+	# Disable dynamic frequency scaling for better real time performance
+	disable_dynamic_freq_scaling
 
 	if [ $FORCE_100M -eq 1 ]; then
 		# Advertise 100 Mbps full-duplex

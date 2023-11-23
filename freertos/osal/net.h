@@ -1,0 +1,39 @@
+/*
+* Copyright 2018-2020, 2023 NXP
+*
+* SPDX-License-Identifier: BSD-3-Clause
+*/
+
+/**
+ @file
+ @brief FreeRTOS specific NET implementation
+ @details
+*/
+#ifndef _FREERTOS_OSAL_NET_H_
+#define _FREERTOS_OSAL_NET_H_
+
+#include "common/net_types.h"
+
+#define DEFAULT_NET_DATA_SIZE		1600
+
+struct net_tx {
+	void (*func_tx_ts)(struct net_tx *, uint64_t ts, unsigned int private);
+
+	void *socket;
+
+	unsigned int port_id;
+};
+
+struct net_rx {
+	void (*func)(struct net_rx *, struct net_rx_desc *);
+	void (*func_multi)(struct net_rx *, struct net_rx_desc **, unsigned int);
+
+	void *socket;
+
+	unsigned int batch;
+};
+
+int net_rx_set_callback(struct net_rx*, void (*callback)(void *), void *data);
+int net_rx_enable_callback(struct net_rx *rx);
+
+#endif /* _FREERTOS_OSAL_NET_H_ */

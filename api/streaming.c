@@ -15,11 +15,13 @@
 #include "common/ipc.h"
 #include "common/avtp.h"
 
+#include "genavb/avdecc.h"
+
 #include "streaming.h"
 #include "control.h"
 #include "clock.h"
 
-/* Searches for a valid redundant set_id between STATIC_STREAM_MIN_SET_ID and STATIC_STREAM_MAX_SET_ID for a static stream.
+/* Searches for a valid redundant set_id in the right set_id range.
  * Also marks the found set_id as now used.
  *
  * \return			0 if a valid set_id could be found for the static stream, -1 otherwise
@@ -30,19 +32,23 @@
 int static_set_id_alloc(struct genavb_handle *genavb, u16 *set_id, avtp_direction_t direction)
 {
 	u64 *static_set_id_mask;
+	unsigned short id_base;
 	int rc = -1;
 	int i;
 
-	if (direction == AVTP_DIRECTION_LISTENER)
+	if (direction == AVTP_DIRECTION_LISTENER) {
+		id_base = STATIC_STREAM_ID_BASE + LISTENER_SET_ID_BASE;
 		static_set_id_mask = &genavb->listener_static_set_id_mask;
-	else
+	} else {
+		id_base = STATIC_STREAM_ID_BASE + TALKER_SET_ID_BASE;
 		static_set_id_mask = &genavb->talker_static_set_id_mask;
+	}
 
 	for (i = 0; i < STATIC_STREAM_NUM_SET_ID; i++) {
 		if (!(((*static_set_id_mask) >> i) & 0x1)) {
 			*static_set_id_mask |= (1ULL << i);
 
-			*set_id = i + STATIC_STREAM_MIN_SET_ID;
+			*set_id = i + id_base;
 
 			rc = 0;
 			break;
@@ -62,13 +68,17 @@ int static_set_id_alloc(struct genavb_handle *genavb, u16 *set_id, avtp_directio
 void static_set_id_free(struct genavb_handle *genavb, u16 set_id, avtp_direction_t direction)
 {
 	u64 *static_set_id_mask;
+	unsigned short id_base;
 
-	if (direction == AVTP_DIRECTION_LISTENER)
+	if (direction == AVTP_DIRECTION_LISTENER) {
 		static_set_id_mask = &genavb->listener_static_set_id_mask;
-	else
+		id_base = STATIC_STREAM_ID_BASE + LISTENER_SET_ID_BASE;
+	} else {
 		static_set_id_mask = &genavb->talker_static_set_id_mask;
+		id_base = STATIC_STREAM_ID_BASE + TALKER_SET_ID_BASE;
+	}
 
-	*static_set_id_mask &= ~(1ULL << (set_id - STATIC_STREAM_MIN_SET_ID));
+	*static_set_id_mask &= ~(1ULL << (set_id - id_base));
 }
 
 unsigned int genavb_stream_presentation_offset(const struct genavb_stream_handle *handle)

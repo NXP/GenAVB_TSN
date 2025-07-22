@@ -923,18 +923,18 @@ __init static int avdecc_dynamic_redundant_listener_set_init(struct entity *enti
 {
 	struct stream_input_dynamic_desc *redundant_input_desc;
 	struct stream_input_dynamic_desc *stream_input_desc;
+	unsigned int set_id = LISTENER_SET_ID_BASE;
 	struct stream_descriptor *redundant_desc;
 	struct stream_descriptor *stream_desc;
 	unsigned int set_index = 0;
 	u16 redundant_desc_index;
-	unsigned int set_id = 0;
 	u16 num_redundant_desc;
 	unsigned int num_desc;
 	bool valid_set = false;
 	bool new_set = false;
 	int i, j, k;
 
-	/* Start with non redundant streams, for consistency they're also assigned to a redundant set with set_id = stream's unique_id */
+	/* Start with non redundant streams, for consistency they're also assigned to a redundant set with set_id = listener base + stream's unique_id */
 	num_desc = aem_get_descriptor_max(entity->aem_descs, AEM_DESC_TYPE_STREAM_INPUT);
 	for (i = 0; i < num_desc; i++) {
 		stream_desc = aem_get_descriptor(entity->aem_descs, AEM_DESC_TYPE_STREAM_INPUT, i, NULL);
@@ -951,8 +951,8 @@ __init static int avdecc_dynamic_redundant_listener_set_init(struct entity *enti
 				goto err;
 			}
 
-			/* Start set_id for actual redundant sets at last non redundant stream's unique id + 1 */
-			set_id = stream_input_desc->unique_id;
+			/* Start set_id for actual redundant sets at listener base + last non redundant stream's unique id + 1 */
+			set_id = LISTENER_SET_ID_BASE + stream_input_desc->unique_id;
 
 			stream_input_desc->set_id = set_id;
 			stream_input_desc->set_index = 0;
@@ -974,7 +974,7 @@ __init static int avdecc_dynamic_redundant_listener_set_init(struct entity *enti
 			goto err;
 		}
 
-		/* Skip non redundant streams. They already have their set_id (= unique_id) */
+		/* Skip non redundant streams. They already have their set_id */
 		if (!STREAM_HAS_REDUNDANT_STREAMS(stream_desc))
 			continue;
 
@@ -1128,17 +1128,17 @@ __init static int avdecc_dynamic_redundant_talker_set_init(struct entity *entity
 	struct stream_output_dynamic_desc *redundant_output_desc;
 	struct stream_output_dynamic_desc *stream_output_desc;
 	struct stream_descriptor *redundant_desc;
+	unsigned int set_id = TALKER_SET_ID_BASE;
 	struct stream_descriptor *stream_desc;
 	unsigned int set_index = 0;
 	u16 redundant_desc_index;
-	unsigned int set_id = 0;
 	u16 num_redundant_desc;
 	unsigned int num_desc;
 	bool valid_set = false;
 	bool new_set = false;
 	int i, j, k;
 
-	/* Start with non redundant streams, for consistency they're also assigned to a redundant set with set_id = stream's unique_id */
+	/* Start with non redundant streams, for consistency they're also assigned to a redundant set with set_id = talker base + stream's unique_id */
 	num_desc = aem_get_descriptor_max(entity->aem_descs, AEM_DESC_TYPE_STREAM_OUTPUT);
 	for (i = 0; i < num_desc; i++) {
 		stream_desc = aem_get_descriptor(entity->aem_descs, AEM_DESC_TYPE_STREAM_OUTPUT, i, NULL);
@@ -1155,8 +1155,8 @@ __init static int avdecc_dynamic_redundant_talker_set_init(struct entity *entity
 				goto err;
 			}
 
-			/* Start set_id for actual redundant sets at last non redundant stream's unique id + 1 */
-			set_id = stream_output_desc->unique_id;
+			/* Start set_id for actual redundant sets at talker base + last non redundant stream's unique id + 1 */
+			set_id = TALKER_SET_ID_BASE + stream_output_desc->unique_id;
 
 			stream_output_desc->set_id = set_id;
 			stream_output_desc->set_index = 0;
@@ -1178,7 +1178,7 @@ __init static int avdecc_dynamic_redundant_talker_set_init(struct entity *entity
 			goto err;
 		}
 
-		/* Skip non redundant streams. They already have their set_id (= unique_id) */
+		/* Skip non redundant streams. They already have their set_id */
 		if (!STREAM_HAS_REDUNDANT_STREAMS(stream_desc))
 			continue;
 

@@ -18,11 +18,6 @@
 #include "api/init.h"
 #include "api_os/streaming.h"
 
-#define STATIC_STREAM_NUM_SET_ID		64
-#define STATIC_STREAM_MIN_SET_ID		200
-#define STATIC_STREAM_MAX_SET_ID		(STATIC_STREAM_MIN_SET_ID + STATIC_STREAM_NUM_SET_ID - 1)
-#define IS_STATIC_STREAM_SET_ID(set_id)		((set_id) >= STATIC_STREAM_MIN_SET_ID && (set_id) <= STATIC_STREAM_MAX_SET_ID)
-
 int connect_avtp(struct genavb_handle *genavb, struct genavb_stream_handle *stream,
 		 unsigned int *max_payload_size, unsigned int *batch);
 

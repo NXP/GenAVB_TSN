@@ -221,8 +221,8 @@ int avbstream_listener_add(unsigned int unique_id, struct avb_stream_params *par
 {
 	struct avb_stream_params *stream_params;
 	aar_avb_stream_t *avbstream;
+	int result, set_unique_id;
 	aar_avb_set_t *avbset;
-	int result;
 
 	DBG("unique_id: %d", unique_id);
 
@@ -240,9 +240,15 @@ int avbstream_listener_add(unsigned int unique_id, struct avb_stream_params *par
 		return -1;
 	}
 
-	avbset = avbstream_get_listener_set(params->set_id);
+	set_unique_id = avdecc_get_set_index(params->set_id);
+	if (set_unique_id < 0) {
+		ERR("Could not get listener AVB set %u unique id", params->set_id);
+		return -1;
+	}
+
+	avbset = avbstream_get_listener_set(set_unique_id);
 	if (!avbset) {
-		ERR("Could not get listener AVB set unique id %u", params->set_id);
+		ERR("Could not get listener AVB set %u with unique id %d", params->set_id, set_unique_id);
 		return -1;
 	}
 
@@ -254,7 +260,7 @@ int avbstream_listener_add(unsigned int unique_id, struct avb_stream_params *par
 
 	stream_params->talker.latency = 0;
 
-	DBG("avbstream: %p, avbset: %p, stream_params: %p", avbstream, avbset, stream_params);
+	INF("avbstream: %p, avbset: (%d, %u, %p), stream_params: %p", avbstream, set_unique_id, params->set_id, avbset, stream_params);
 
 	print_stream_param(stream_params);
 
@@ -289,8 +295,8 @@ int avbstream_talker_add(unsigned int unique_id, struct avb_stream_params *param
 {
 	struct avb_stream_params *stream_params;
 	aar_avb_stream_t *avbstream;
+	int result, set_unique_id;
 	aar_avb_set_t *avbset;
-	int result;
 
 	DBG("unique_id: %d", unique_id);
 
@@ -308,9 +314,15 @@ int avbstream_talker_add(unsigned int unique_id, struct avb_stream_params *param
 		return -1;
 	}
 
-	avbset = avbstream_get_talker_set(params->set_id);
+	set_unique_id = avdecc_get_set_index(params->set_id);
+	if (set_unique_id < 0) {
+		ERR("Could not get talker AVB set %u unique id", params->set_id);
+		return -1;
+	}
+
+	avbset = avbstream_get_talker_set(set_unique_id);
 	if (!avbset) {
-		ERR("Could not get listener AVB set unique id %u", params->set_id);
+		ERR("Could not get talker AVB set %u with unique id %u", params->set_id, set_unique_id);
 		return -1;
 	}
 
@@ -320,7 +332,7 @@ int avbstream_talker_add(unsigned int unique_id, struct avb_stream_params *param
 
 	memcpy(stream_params, params, sizeof(*params));
 
-	DBG("avbstream: %p, stream_params: %p", avbstream, stream_params);
+	INF("avbstream: %p, avbset: (%d, %u, %p), stream_params: %p", avbstream, set_unique_id, params->set_id, avbset, stream_params);
 
 	print_stream_param(stream_params);
 

@@ -156,7 +156,7 @@ int adp_advertise_send_packet(struct adp_ctx *adp, u8 message_type, unsigned int
 	adp_hdr->gptp_grandmaster_id = avb_itf_dynamic->gptp_grandmaster_id;
 	adp_hdr->gptp_domain_number = 0; //FIXME
 	adp_hdr->identity_control_index = 0; //FIXME
-	adp_hdr->interface_index = port_id;
+	adp_hdr->interface_index = htons(port_id);
 	adp_hdr->association_id = entity->desc->association_id;
 	adp_hdr->rsvd0 = 0;
 	adp_hdr->rsvd1 = 0;

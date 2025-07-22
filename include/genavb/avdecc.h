@@ -701,4 +701,40 @@ static inline void avdecc_fmt_tspec(const struct avdecc_format *format, sr_class
 		; /* FIXME handle other formats */
 }
 
+/*
+ * Set identifiers allocation ranges:
+ * - AVDECC listener streams: [0..99]
+ * - AVDECC talker streams:   [100..199]
+ * - Static listener streams: [200..263]
+ * - Static talker streams:   [300..363]
+ */
+#define LISTENER_SET_ID_BASE	0
+#define TALKER_SET_ID_BASE	100
+#define STATIC_STREAM_ID_BASE	200
+
+#define STATIC_STREAM_NUM_SET_ID		64 /* Used as mask size: Keep this equal or less than 64 */
+
+#define STATIC_LISTENER_STREAM_SET_ID_BASE		(STATIC_STREAM_ID_BASE + LISTENER_SET_ID_BASE)
+#define IS_STATIC_LISTENER_STREAM_SET_ID(set_id)	(((set_id) >= (STATIC_LISTENER_STREAM_SET_ID_BASE)) && ((set_id) <= (STATIC_LISTENER_STREAM_SET_ID_BASE + STATIC_STREAM_NUM_SET_ID - 1)))
+#define STATIC_TALKER_STREAM_SET_ID_BASE		(STATIC_STREAM_ID_BASE + TALKER_SET_ID_BASE)
+#define IS_STATIC_TALKER_STREAM_SET_ID(set_id)		(((set_id) >= (STATIC_TALKER_STREAM_SET_ID_BASE)) && ((set_id) <= (STATIC_TALKER_STREAM_SET_ID_BASE + STATIC_STREAM_NUM_SET_ID - 1)))
+
+#define IS_STATIC_STREAM_SET_ID(set_id)		(IS_STATIC_LISTENER_STREAM_SET_ID(set_id) || IS_STATIC_TALKER_STREAM_SET_ID(set_id))
+
+/* Helper function to get the index (offset from base) of the set inside its range */
+static inline int avdecc_get_set_index(unsigned short set_id)
+{
+	int rc = -1;
+
+	if (set_id < STATIC_STREAM_ID_BASE) {
+		rc = (set_id < TALKER_SET_ID_BASE) ? (set_id - LISTENER_SET_ID_BASE) : (set_id - TALKER_SET_ID_BASE);
+	} else if (IS_STATIC_LISTENER_STREAM_SET_ID(set_id)) {
+		rc = set_id - STATIC_LISTENER_STREAM_SET_ID_BASE;
+	} else if (IS_STATIC_TALKER_STREAM_SET_ID(set_id)) {
+		rc = set_id - STATIC_TALKER_STREAM_SET_ID_BASE;
+	}
+
+	return rc;
+}
+
 #endif /* _GENAVB_PUBLIC_AVDECC_H_ */

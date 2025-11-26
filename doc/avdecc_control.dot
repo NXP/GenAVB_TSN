@@ -1,0 +1,101 @@
+digraph {
+fontname=Helvetica;
+node[fontname=Helvetica];
+size="!1,1";
+label="AVDECC control paths";
+rankdir=LR;
+ordering=out;
+streamer[shape=Mrecord, label="Talker/Listener\nstreaming\napplication", rank=source];
+controller[shape=Mrecord, label="Controller\napplication", rank=source];
+controlled[shape=Mrecord, label="Talker/Listener\ncontrol\napplication", rank=source];
+
+subgraph cluster2 {
+  shape=box;
+  label="Media stack channel";
+  node[shape="record"];
+  media[label="<conn> CONNECT |<dis> DISCONNECT |<bind> BIND |<unbind> UNBIND |<set_clk> SET_CLOCK_SOURCE |<persistent_param> PERSISTENT_PARAM |<start_entity> START_ENTITY"];
+}
+
+subgraph cluster1 {
+  shape=box;
+  label="Controller channel";
+  node[shape="record"];
+  ACMP1[label="ACMP|<cmd> commands |<rsp> responses"];
+  ADP1[label="{<adp> ADP messages}"];
+  AECP1[label="AECP|<cmd> commands |<rsp> responses"];
+}
+
+subgraph cluster3 {
+  shape=box;
+  label="Controlled channel";
+  node[shape="record"];
+  AECP2[label="AECP|<cmd> commands |<rsp> responses"];
+}
+
+subgraph cluster0 {
+  shape="Mrecord";
+  rank=sink;
+  node[shape=Mrecord];
+  label = "                 AVDECC\n              component";
+  labeljust = r;
+  ACMP[style=filled, fillcolor=tomato]
+  AEM[style=filled, fillcolor=gold]
+  ADP[style=filled, fillcolor=springgreen, label="<main> ADP|<db> entity\ndatabase"];
+  AECP[style=filled, fillcolor=skyblue]
+}
+
+network[shape=Mrecord, label="AVB\nnetwork", rank=sink];
+
+
+controller -> AECP1:cmd;
+AECP1:rsp -> controller [constraint=false];
+
+controller -> ACMP1:cmd;
+ACMP1:rsp -> controller [constraint=false];
+
+controller -> ADP1 [dir="both"];
+
+AECP1:cmd -> AECP [color=skyblue];
+AECP -> AECP1:rsp [constraint=false, color=skyblue];
+
+ACMP1:cmd -> ACMP [color=tomato];
+ACMP -> ACMP1:rsp [constraint=false, color=tomato];
+
+ADP1 -> ADP:db [dir="both", color=springgreen];
+
+
+controlled -> AECP2:rsp;
+AECP2:cmd -> controlled [constraint=false];
+
+media:conn -> streamer [constraint=false];
+media:dis -> streamer [constraint=false];
+media:bind -> streamer [constraint=false];
+media:bind -> AEM [constraint=false, color=gold];
+media:unbind -> streamer [constraint=false];
+media:set_clk -> streamer [constraint=false];
+media:persistent_param -> streamer [constraint=false];
+media:persistent_param -> AEM [constraint=false, color=gold];
+media:start_entity -> ADP [constraint=false, color=springgreen];
+
+streamer -> media:start_entity[constraint=false];
+streamer -> media:persistent_param[constraint=false];
+streamer -> media:bind[constraint=false];
+streamer -> media [style=invis];
+
+ACMP -> media:conn [constraint=false, color=tomato];
+ACMP -> media:bind [constraint=false, color=tomato];
+ACMP -> media:unbind [constraint=false, color=tomato];
+ACMP -> media:dis [constraint=false, color=tomato];
+
+AECP -> media:set_clk [constraint=false, color=skyblue];
+AECP -> media:persistent_param [constraint=false, color=skyblue];
+
+AECP -> AECP2:cmd [constraint=false, color=skyblue];
+AECP2:rsp -> AECP [color=skyblue];
+
+AECP -> network [dir="both"];
+ACMP -> network [dir="both"];
+ADP:main -> network [dir="both"];
+
+
+}

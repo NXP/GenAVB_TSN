@@ -1,0 +1,55 @@
+mcux_add_source(
+    SOURCES
+    61883_iidc.c
+    61883_iidc.h
+    aaf.c
+    aaf.h
+    acmp.h
+    adp.h
+    aecp.h
+    avdecc.c
+    avdecc.h
+    avtp.h
+    clock.c
+    clock.h
+    config.h
+    crf.h
+    cvf.h
+    ether.h
+    filter.c
+    filter.h
+    fqtss.c
+    fqtss.h
+    hash.c
+    hash.h
+    ipc.h
+    list.h
+    log.c
+    log.h
+    maap.h
+    managed_objects.c
+    managed_objects.h
+    net.h
+    net_types.h
+    ptp.h
+    random.c
+    random.h
+    srp.c
+    srp.h
+    stats.c
+    stats.h
+    timer.c
+    timer.h
+    types.h
+    TOOLCHAINS armgcc mcux
+)
+
+mcux_add_source(
+    EXCLUDE TRUE
+    SOURCES
+    os/pi_common.c
+    os/pi_common.h
+    os/queue_common.c
+    os/queue_common.h
+    TOOLCHAINS armgcc mcux
+)

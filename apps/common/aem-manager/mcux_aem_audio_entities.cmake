@@ -1,0 +1,27 @@
+if(CONFIG_MCUX_COMPONENT_middleware.genavb.apps.aem_manager.audio_entities)
+    mcux_add_source(
+        SOURCES
+        listener_audio_single.c
+        listener_audio_single.h
+        listener_audio_single_milan.c
+        listener_audio_single_milan.h
+        listener_talker_audio_single.c
+        listener_talker_audio_single.h
+        listener_talker_audio_single_milan.c
+        listener_talker_audio_single_milan.h
+        listener_talker_audio_redundant_milan.c
+        listener_talker_audio_redundant_milan.h
+        talker_audio_single.c
+        talker_audio_single.h
+        talker_audio_single_milan.c
+        talker_audio_single_milan.h
+        talker_listener_audio_multi.c
+        talker_listener_audio_multi.h
+        talker_listener_audio_multi_aaf.c
+        talker_listener_audio_multi_aaf.h
+        talker_listener_audio_multi_format.c
+        talker_listener_audio_multi_format.h
+        talker_listener_audio_default.c
+        talker_listener_audio_default.h
+    )
+endif()

@@ -13,6 +13,7 @@
 #include "config.h"
 
 #include "tpm_rec.h"
+#include "clock.h"
 #include "imx-pll.h"
 #include "media_clock_rec_pll.h"
 
@@ -102,14 +103,15 @@ static int tpm_sw_rec_timer_irq(struct mclock_dev *dev, void *data, unsigned int
 	struct mclock_rec_pll *rec = mclock_dev_to_rec(dev);
 	struct tpm_rec *tpm_rec = container_of(rec, struct tpm_rec, rec);
 	struct gptp_dev *gptp_dev = rec->gptp_event_dev;
-	uint32_t cnt_val, now;
+	uint32_t cnt_val;
+	uint64_t now;
 	int rc = 0;
 
 	/* Sample ptp counter and audio pll cycles "simultaneously" (with interrupts
 	 * and scheduling disabled).
 	 */
 	rtos_spin_lock(&rtos_global_spinlock, &rtos_global_key);
-	if (os_clock_gettime32(gptp_dev->port->clock[PORT_CLOCK_GPTP_0], &now) < 0) {
+	if (os_clock_gettime64_isr(gptp_dev->port->clock[PORT_CLOCK_GPTP_0], &now) < 0) {
 		rc = -1;
 		rec->c.stats.err_gptp_gettime++;
 		rtos_spin_unlock(&rtos_global_spinlock, rtos_global_key);
@@ -119,7 +121,7 @@ static int tpm_sw_rec_timer_irq(struct mclock_dev *dev, void *data, unsigned int
 	cnt_val = TPM_GetCurrentTimerCount(tpm_rec->base);
 	rtos_spin_unlock(&rtos_global_spinlock, rtos_global_key);
 
-	mclock_rec_pll_common_sw_sampling_irq(&rec->c, cnt_val, now, ticks);
+	mclock_rec_pll_common_sw_sampling_irq(&rec->c, cnt_val, (uint32_t)now, ticks);
 
 out:
 	return rc;

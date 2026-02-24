@@ -1,6 +1,6 @@
 /*
  * Copyright 2015-2016 Freescale Semiconductor, Inc.
- * Copyright 2016-2023, 2025 NXP
+ * Copyright 2016-2023, 2025-2026 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -662,34 +662,34 @@ static int rcv_info (struct gptp_port *port, struct ptp_announce_pdu *rcvdAnnoun
 	port->params.message_steps_removed = ntohs(rcvdAnnouncePtr->steps_removed);
 
 	/* compare received message (A) vector Vs local port vector (B)*/
-	result = compare_msg_priority_vector(&port_info_sm->messagePriority, &port->params.port_priority);
+	result = compare_priority_vector(&port_info_sm->messagePriority, &port->params.port_priority);
+
+	if (result == BMCA_VECTOR_A_B_SAME) {
+		/* Returns RepeatedMasterInfo if the received message conveys the port role MasterPort and,
+		 * the messagePriorityVector is the same as the portPriorityVector of the port
+		 */
+		info = ANNOUNCE_PRIO_REPEATED_MASTER_INFO;
+
+	} else if ((result == BMCA_VECTOR_A_BETTER) ||
+		    !os_memcmp(&port_info_sm->messagePriority.u.s.source_port_identity, &port->params.port_priority.u.s.source_port_identity, sizeof(struct ptp_port_identity))) {
+		/* Returns SuperiorMasterInfo if the received message conveys the port role MasterPort and,
+		 * the messagePriorityVector is better than the portPriorityVector of the port or
+		 * the Announce message has been transmitted from the same master PTP Instance and MasterPort as the portPriorityVector
+		 */
+		info = ANNOUNCE_PRIO_SUPERIOR_MASTER_INFO;
+
+	} else if (result == BMCA_VECTOR_B_BETTER) {
+		/* Returns InferiorMasterInfo if the received message conveys the port role MasterPort and,
+		 * the messagePriorityVector is worse than the portPriorityVector of the port
+		 */
+		info = ANNOUNCE_PRIO_INFERIOR_MASTER_INFO;
+
+	} else {
+		info = ANNOUNCE_PRIO_OTHER_INFO;
+	}
 
 	dump_priority_vector(&port_info_sm->messagePriority, port->instance->index, port->instance->domain.domain_number, "messagePriority", LOG_DEBUG);
 	dump_priority_vector(&port->params.port_priority, port->instance->index, port->instance->domain.domain_number, "port_priority", LOG_DEBUG);
-
-	switch (result) {
-	case BMCA_VECTOR_A_BETTER:
-		/* Returns SuperiorMasterInfo if the received message conveys the port role MasterPort, and the
-		messagePriorityVector is superior to the portPriorityVector of the port */
-		info = ANNOUNCE_PRIO_SUPERIOR_MASTER_INFO;
-		break;
-
-	case BMCA_VECTOR_A_B_SAME:
-		/* Returns RepeatedMasterInfo if the received message conveys the port role MasterPort, and the
-		messagePriorityVector is the same as the portPriorityVector of the port */
-		info = ANNOUNCE_PRIO_REPEATED_MASTER_INFO;
-		break;
-
-	case BMCA_VECTOR_B_BETTER:
-		/* Returns InferiorMasterInfo if the received message conveys the port role MasterPort, and the
-		messagePriorityVector is worse than the portPriorityVector of the port */
-		info = ANNOUNCE_PRIO_INFERIOR_MASTER_INFO;
-		break;
-
-	default:
-		info = ANNOUNCE_PRIO_OTHER_INFO;
-		break;
-	}
 
 	return info;
 }

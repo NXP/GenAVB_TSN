@@ -67,25 +67,6 @@ bmca_vector_cmp_t compare_priority_vector(struct ptp_priority_vector *Pa, struct
 		return BMCA_VECTOR_A_B_SAME;
 }
 
-/** 802.1AS -10.3.5
- * This messagePriorityVector is superior to the portPriorityVector and will replace it if, and only if, the
- * messagePriorityVector is better than the portPriorityVector, or the Announce message has been transmitted
- * from the same master time-aware system and MasterPort as the portPriorityVector, i.e., if the following is
- * true.
- *
- */
-bmca_vector_cmp_t compare_msg_priority_vector(struct ptp_priority_vector *msgP, struct ptp_priority_vector *portP)
-{
-	int cmp;
-
-	/* Message is from the same master time-aware system and MasterPort as the portPriorityVector */
-	cmp = os_memcmp(&msgP->u.s.source_port_identity, &portP->u.s.source_port_identity, sizeof(struct ptp_port_identity));
-	if (!cmp)
-		return BMCA_VECTOR_A_B_SAME;
-
-	return compare_priority_vector(msgP, portP);
-}
-
 void dump_priority_vector(struct ptp_priority_vector *p, u8 domain_index, u8 domain, char *p_name, log_level_t lvl)
 {
 	u64 cid = get_64(p->u.s.source_port_identity.clock_identity);

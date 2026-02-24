@@ -1,6 +1,6 @@
 /*
  * Copyright 2015-2016 Freescale Semiconductor, Inc.
- * Copyright 2016-2017, 2020-2021, 2023, 2025 NXP
+ * Copyright 2016-2017, 2020-2021, 2023, 2025-2026 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -33,8 +33,6 @@ void copy_priority_vector_from_message(struct gptp_port *port, struct ptp_priori
 int compare_clock_identity(struct ptp_clock_identity *ida, struct ptp_clock_identity *idb);
 bmca_vector_cmp_t compare_system_identity(struct ptp_priority_vector *p1, struct ptp_priority_vector *p2);
 bmca_vector_cmp_t compare_priority_vector(struct ptp_priority_vector *p1, struct ptp_priority_vector *p2);
-
-bmca_vector_cmp_t compare_msg_priority_vector(struct ptp_priority_vector *msgP, struct ptp_priority_vector *portP);
 
 void dump_priority_vector(struct ptp_priority_vector *p, u8 domain_index, u8 domain, char *p_name, log_level_t lvl);
 

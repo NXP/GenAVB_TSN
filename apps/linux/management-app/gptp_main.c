@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022, 2025 NXP
+ * Copyright 2018-2022, 2025-2026 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,12 +11,16 @@
 #include <genavb/genavb.h>
 #include <genavb/helpers.h>
 #include <genavb/managed_objects.h>
+
 #include "common.h"
 
-static char *module_name = "ptp";
+static const char *module_name = "ptp";
 static char *device_name;
 
 #define BUF_LEN 100
+
+#define STATS_NUM 16
+#define STATS_STR_LEN 64
 
 static int dump_stats(struct genavb_control_handle *ctrl_h, uint16_t instance, uint16_t port)
 {
@@ -25,42 +29,63 @@ static int dump_stats(struct genavb_control_handle *ctrl_h, uint16_t instance, u
 	uint8_t buf[BUF_LEN];
 	uint8_t *data;
 	int i;
-	uint16_t id, length, status, total_length;
-	char name[][64] = {
-		"rxSyncCount",
-		"rxFollowUpCount",
-		"rxPdelayRequestCount",
-		"rxPdelayResponseCount",
-		"rxPdelayResponseFollowUpCount",
-		"rxAnnounceCount",
-		"rxPTPPacketDiscardCount",
-		"syncReceiptTimeoutCount",
-		"announceReceiptTimeoutCount",
-		"pdelayAllowedLostResponsesExceededCount",
-		"txSyncCount",
-		"txFollowUpCount",
-		"txPdelayRequestCount",
-		"txPdelayResponseCount",
-		"txPdelayResponseFollowUpCount",
-		"txAnnounceCount"
+	uint16_t node_id, length, status, total_length;
+	const char name[STATS_NUM][STATS_STR_LEN] = {
+		"rx-sync-count",
+		"rx-follow-up-count",
+		"rx-pdelay-req-count",
+		"rx-pdelay-resp-count",
+		"rx-pdelay-resp-follow-up-count",
+		"rx-announce-count",
+		"rx-packet-discard-count",
+		"sync-receipt-timeout-count",
+		"announce-receipt-timeout-count",
+		"pdelay-allowed-lost-exceeded-count",
+		"tx-sync-count",
+		"tx-follow-up-count",
+		"tx-pdelay-req-count",
+		"tx-pdelay-resp-count",
+		"tx-pdelay-resp-follow-up-count",
+		"tx-announce-count"
 	};
 
-	genavb_mobj_cmd_init(&cmd, buf, BUF_LEN);
+	if (genavb_mobj_cmd_init(&cmd, module_name, buf, BUF_LEN) < 0)
+		goto err;
 
-	genavb_mobj_cmd_start_node(&cmd, GPTP_NODE_INSTANCE_LIST);
+	if (genavb_mobj_cmd_start_node(&cmd, "instance") < 0)
+		goto err;
 
-	genavb_mobj_cmd_set_list_index(&cmd, GPTP_INSTANCE_INSTANCE_INDEX, instance);
+	if (genavb_mobj_cmd_set_list_index(&cmd, "instance-index", instance) < 0)
+		goto err;
 
-	genavb_mobj_cmd_start_node(&cmd, GPTP_INSTANCE_PORT_STATS_DS);
+	if (genavb_mobj_cmd_start_node(&cmd, "ports") < 0)
+		goto err;
 
-	genavb_mobj_cmd_set_list_index(&cmd, GPTP_PORT_STATS_DS_PORT_ID, port);
+	if (genavb_mobj_cmd_start_node(&cmd, "port") < 0)
+		goto err;
 
-	for (i = 0; i < 16; i++)
-		genavb_mobj_cmd_get_leaf(&cmd, i + 1);
+	if (genavb_mobj_cmd_set_list_index(&cmd, "port-index", port) < 0)
+		goto err;
 
-	genavb_mobj_cmd_end_node(&cmd);
+	if (genavb_mobj_cmd_start_node(&cmd, "port-statistics-ds") < 0)
+		goto err;
 
-	genavb_mobj_cmd_end_node(&cmd);
+	for (i = 0; i < STATS_NUM; i++) {
+		if (genavb_mobj_cmd_get_leaf(&cmd, name[i]) < 0)
+			goto err;
+	}
+
+	if (genavb_mobj_cmd_end_node(&cmd) < 0)
+		goto err;
+
+	if (genavb_mobj_cmd_end_node(&cmd) < 0)
+		goto err;
+
+	if (genavb_mobj_cmd_end_node(&cmd) < 0)
+		goto err;
+
+	if (genavb_mobj_cmd_end_node(&cmd) < 0)
+		goto err;
 
 	if (managed_get(ctrl_h, genavb_mobj_cmd_buf(&cmd), genavb_mobj_cmd_len(&cmd), &get_response, sizeof(get_response)) < 0)
 		goto err;
@@ -69,25 +94,31 @@ static int dump_stats(struct genavb_control_handle *ctrl_h, uint16_t instance, u
 		goto err;
 
 	/* instance node header */
-	data = get_node_header((uint8_t *)&get_response, &id, &total_length, &status);
+	data = get_node_header((uint8_t *)&get_response, &node_id, &total_length, &status);
 
 	/* instance entry key header */
-	data = get_node_header(data, &id, &length, &status);
+	data = get_node_header(data, &node_id, &length, &status);
 
 	data = get_node_next(data, length);
 
-	/* port stats node header */
-	data = get_node_header(data, &id, &length, &status);
+	/* ports node header */
+	data = get_node_header(data, &node_id, &length, &status);
+
+	/* port node header */
+	data = get_node_header(data, &node_id, &length, &status);
 
 	/* port entry key header */
-	data = get_node_header(data, &id, &length, &status);
+	data = get_node_header(data, &node_id, &length, &status);
 
 	printf("%s %s port: %u stats\n", module_name, device_name, ((uint16_t *)data)[0]);
 
 	data = get_node_next(data, length);
 
-	for (i = 0; i < 16; i++) {
-		data = get_node_header(data, &id, &length, &status);
+	/* port stats node header */
+	data = get_node_header(data, &node_id, &length, &status);
+
+	for (i = 0; i < STATS_NUM; i++) {
+		data = get_node_header(data, &node_id, &length, &status);
 
 		if (!status)
 			printf("%-40s %8u\n", name[i], ((uint32_t *)data)[0]);
@@ -109,21 +140,41 @@ static int set_port_state(struct genavb_control_handle *ctrl_h, uint16_t instanc
 	struct genavb_mobj_cmd cmd;
 	uint8_t buf[BUF_LEN];
 
-	genavb_mobj_cmd_init(&cmd, buf, BUF_LEN);
+	if (genavb_mobj_cmd_init(&cmd, module_name, buf, BUF_LEN) < 0)
+		goto err;
 
-	genavb_mobj_cmd_start_node(&cmd, GPTP_NODE_INSTANCE_LIST);
+	if (genavb_mobj_cmd_start_node(&cmd, "instance") < 0)
+		goto err;
 
-	genavb_mobj_cmd_set_list_index(&cmd, GPTP_INSTANCE_INSTANCE_INDEX, instance);
+	if (genavb_mobj_cmd_set_list_index(&cmd, "instance-index", instance) < 0)
+		goto err;
 
-	genavb_mobj_cmd_start_node(&cmd, GPTP_INSTANCE_PORT_DS);
+	if (genavb_mobj_cmd_start_node(&cmd,  "ports") < 0)
+		goto err;
 
-	genavb_mobj_cmd_set_list_index(&cmd, GPTP_PORT_DS_PORT_ID, port);
+	if (genavb_mobj_cmd_start_node(&cmd, "port") < 0)
+		goto err;
 
-	genavb_mobj_cmd_set_leaf_u8(&cmd, GPTP_PORT_DS_PTP_PORT_ENABLED, enable);
+	if (genavb_mobj_cmd_set_list_index(&cmd, "port-index", port) < 0)
+		goto err;
 
-	genavb_mobj_cmd_end_node(&cmd);
+	if (genavb_mobj_cmd_start_node(&cmd, "port-ds") < 0)
+		goto err;
 
-	genavb_mobj_cmd_end_node(&cmd);
+	if (genavb_mobj_cmd_set_leaf_u8(&cmd, "port-enable", enable) < 0)
+		goto err;
+
+	if (genavb_mobj_cmd_end_node(&cmd) < 0)
+		goto err;
+
+	if (genavb_mobj_cmd_end_node(&cmd) < 0)
+		goto err;
+
+	if (genavb_mobj_cmd_end_node(&cmd) < 0)
+		goto err;
+
+	if (genavb_mobj_cmd_end_node(&cmd) < 0)
+		goto err;
 
 	if (managed_set(ctrl_h, genavb_mobj_cmd_buf(&cmd), genavb_mobj_cmd_len(&cmd), &set_response, sizeof(set_response)) < 0)
 		goto err;
@@ -147,21 +198,41 @@ static int get_port_state(struct genavb_control_handle *ctrl_h, uint16_t instanc
 	struct genavb_mobj_cmd cmd;
 	uint8_t buf[BUF_LEN];
 
-	genavb_mobj_cmd_init(&cmd, buf, BUF_LEN);
+	if (genavb_mobj_cmd_init(&cmd, module_name, buf, BUF_LEN) < 0)
+		goto err;
 
-	genavb_mobj_cmd_start_node(&cmd, GPTP_NODE_INSTANCE_LIST);
+	if (genavb_mobj_cmd_start_node(&cmd, "instance") < 0)
+		goto err;
 
-	genavb_mobj_cmd_set_list_index(&cmd, GPTP_INSTANCE_INSTANCE_INDEX, instance);
+	if (genavb_mobj_cmd_set_list_index(&cmd, "instance-index", instance) < 0)
+		goto err;
 
-	genavb_mobj_cmd_start_node(&cmd, GPTP_INSTANCE_PORT_DS);
+	if (genavb_mobj_cmd_start_node(&cmd, "ports") < 0)
+		goto err;
 
-	genavb_mobj_cmd_set_list_index(&cmd, GPTP_PORT_DS_PORT_ID, port);
+	if (genavb_mobj_cmd_start_node(&cmd, "port") < 0)
+		goto err;
 
-	genavb_mobj_cmd_get_leaf(&cmd, GPTP_PORT_DS_PTP_PORT_ENABLED);
+	if (genavb_mobj_cmd_set_list_index(&cmd, "port-index", port) < 0)
+		goto err;
 
-	genavb_mobj_cmd_end_node(&cmd);
+	if (genavb_mobj_cmd_start_node(&cmd, "port-ds") < 0)
+		goto err;
 
-	genavb_mobj_cmd_end_node(&cmd);
+	if (genavb_mobj_cmd_get_leaf(&cmd, "port-enable") < 0)
+		goto err;
+
+	if (genavb_mobj_cmd_end_node(&cmd) < 0)
+		goto err;
+
+	if (genavb_mobj_cmd_end_node(&cmd) < 0)
+		goto err;
+
+	if (genavb_mobj_cmd_end_node(&cmd) < 0)
+		goto err;
+
+	if (genavb_mobj_cmd_end_node(&cmd) < 0)
+		goto err;
 
 	if (managed_get(ctrl_h, genavb_mobj_cmd_buf(&cmd), genavb_mobj_cmd_len(&cmd), &get_response, sizeof(get_response)) < 0)
 		goto err;
@@ -169,7 +240,7 @@ static int get_port_state(struct genavb_control_handle *ctrl_h, uint16_t instanc
 	if (genavb_mobj_rsp_check((u_int8_t *)&get_response) < 0)
 		goto err;
 
-	printf("%s %s get port: %u, state: %u\n", module_name, device_name, port, get_response.data[17 * 2]);
+	printf("%s %s get port: %u, state: %u\n", module_name, device_name, port, get_response.data[46]);
 
 	return 0;
 
@@ -186,19 +257,26 @@ static int set_priority1(struct genavb_control_handle *ctrl_h, uint16_t instance
 	struct genavb_mobj_cmd cmd;
 	uint8_t buf[BUF_LEN];
 
-	genavb_mobj_cmd_init(&cmd, buf, BUF_LEN);
+	if (genavb_mobj_cmd_init(&cmd, module_name, buf, BUF_LEN) < 0)
+		goto err;
 
-	genavb_mobj_cmd_start_node(&cmd, GPTP_NODE_INSTANCE_LIST);
+	if (genavb_mobj_cmd_start_node(&cmd, "instance") < 0)
+		goto err;
 
-	genavb_mobj_cmd_set_list_index(&cmd, GPTP_INSTANCE_INSTANCE_INDEX, instance);
+	if (genavb_mobj_cmd_set_list_index(&cmd, "instance-index", instance) < 0)
+		goto err;
 
-	genavb_mobj_cmd_start_node(&cmd, GPTP_INSTANCE_DEFAULT_DS);
+	if (genavb_mobj_cmd_start_node(&cmd, "default-ds") < 0)
+		goto err;
 
-	genavb_mobj_cmd_set_leaf_u8(&cmd, GPTP_DEFAULT_DS_PRIORITY1, priority1);
+	if (genavb_mobj_cmd_set_leaf_u8(&cmd, "priority1", priority1) < 0)
+		goto err;
 
-	genavb_mobj_cmd_end_node(&cmd);
+	if (genavb_mobj_cmd_end_node(&cmd) < 0)
+		goto err;
 
-	genavb_mobj_cmd_end_node(&cmd);
+	if (genavb_mobj_cmd_end_node(&cmd) < 0)
+		goto err;
 
 	if (managed_set(ctrl_h, genavb_mobj_cmd_buf(&cmd), genavb_mobj_cmd_len(&cmd), &set_response, sizeof(set_response)) < 0)
 		goto err;
@@ -222,19 +300,26 @@ static int get_priority1(struct genavb_control_handle *ctrl_h, uint16_t instance
 	struct genavb_mobj_cmd cmd;
 	uint8_t buf[BUF_LEN];
 
-	genavb_mobj_cmd_init(&cmd, buf, BUF_LEN);
+	if (genavb_mobj_cmd_init(&cmd, module_name, buf, BUF_LEN) < 0)
+		goto err;
 
-	genavb_mobj_cmd_start_node(&cmd, GPTP_NODE_INSTANCE_LIST);
+	if (genavb_mobj_cmd_start_node(&cmd, "instance") < 0)
+		goto err;
 
-	genavb_mobj_cmd_set_list_index(&cmd, GPTP_INSTANCE_INSTANCE_INDEX, instance);
+	if (genavb_mobj_cmd_set_list_index(&cmd, "instance-index", instance) < 0)
+		goto err;
 
-	genavb_mobj_cmd_start_node(&cmd, GPTP_INSTANCE_DEFAULT_DS);
+	if (genavb_mobj_cmd_start_node(&cmd, "default-ds") < 0)
+		goto err;
 
-	genavb_mobj_cmd_get_leaf(&cmd, GPTP_DEFAULT_DS_PRIORITY1);
+	if (genavb_mobj_cmd_get_leaf(&cmd, "priority1") < 0)
+		goto err;
 
-	genavb_mobj_cmd_end_node(&cmd);
+	if (genavb_mobj_cmd_end_node(&cmd) < 0)
+		goto err;
 
-	genavb_mobj_cmd_end_node(&cmd);
+	if (genavb_mobj_cmd_end_node(&cmd) < 0)
+		goto err;
 
 	if (managed_get(ctrl_h, genavb_mobj_cmd_buf(&cmd), genavb_mobj_cmd_len(&cmd), &get_response, sizeof(get_response)) < 0)
 		goto err;
@@ -252,6 +337,178 @@ err:
 	return -1;
 }
 
+static int get_instance_object(struct genavb_control_handle *ctrl_h, uint16_t instance, char *ds, char *leaf)
+{
+	struct genavb_msg_managed_get_response get_response;
+	struct genavb_mobj_cmd cmd;
+	uint8_t buf[BUF_LEN];
+	uint8_t *data;
+	uint16_t node_id, length, status;
+
+	if (genavb_mobj_cmd_init(&cmd, module_name, buf, BUF_LEN) < 0)
+		goto err;
+
+	if (genavb_mobj_cmd_start_node(&cmd, "instance") < 0)
+		goto err;
+
+	if (genavb_mobj_cmd_set_list_index(&cmd, "instance-index", instance) < 0)
+		goto err;
+
+	if (genavb_mobj_cmd_start_node(&cmd, ds) < 0)
+		goto err;
+
+	if (genavb_mobj_cmd_get_leaf(&cmd, leaf) < 0)
+		goto err;
+
+	if (genavb_mobj_cmd_end_node(&cmd) < 0)
+		goto err;
+
+	if (genavb_mobj_cmd_end_node(&cmd) < 0)
+		goto err;
+
+	if (managed_get(ctrl_h, genavb_mobj_cmd_buf(&cmd), genavb_mobj_cmd_len(&cmd), &get_response, sizeof(get_response)) < 0)
+		goto err;
+
+	if (genavb_mobj_rsp_check((u_int8_t *)&get_response) < 0)
+		goto err;
+
+	/* instance node header */
+	data = get_node_header((uint8_t *)&get_response, &node_id, &length, &status);
+	if (status)
+		goto err;
+
+	/* instance entry key header */
+	data = get_node_header(data, &node_id, &length, &status);
+	if (status)
+		goto err;
+
+	data = get_node_next(data, length);
+
+	/* container ds */
+	data = get_node_header(data, &node_id, &length, &status);
+	if (status)
+		goto err;
+
+	/* leaf header */
+	data = get_node_header(data, &node_id, &length, &status);
+	if (status)
+		goto err;
+
+	printf("%s %s get instance: %u, %s/%s:\n", module_name, device_name, instance, ds, leaf);
+
+	for (int i = 0; i < length - 2; i++)
+		printf(" value[%u] %u\n", i, data[i]);
+
+	return 0;
+
+err:
+	printf("%s %s get instance: %u, %s/%s: error\n", module_name, device_name, instance, ds, leaf);
+
+	return -1;
+}
+
+static int get_port_object(struct genavb_control_handle *ctrl_h, uint16_t instance, uint16_t port, char *ds, char *leaf)
+{
+	struct genavb_msg_managed_get_response get_response;
+	struct genavb_mobj_cmd cmd;
+	uint8_t buf[BUF_LEN];
+	uint8_t *data;
+	uint16_t node_id, length, status;
+
+	if (genavb_mobj_cmd_init(&cmd, module_name, buf, BUF_LEN) < 0)
+		goto err;
+
+	if (genavb_mobj_cmd_start_node(&cmd, "instance") < 0)
+		goto err;
+
+	if (genavb_mobj_cmd_set_list_index(&cmd, "instance-index", instance) < 0)
+		goto err;
+
+	if (genavb_mobj_cmd_start_node(&cmd, "ports") < 0)
+		goto err;
+
+	if (genavb_mobj_cmd_start_node(&cmd, "port") < 0)
+		goto err;
+
+	if (genavb_mobj_cmd_set_list_index(&cmd, "port-index", port) < 0)
+		goto err;
+
+	if (genavb_mobj_cmd_start_node(&cmd, ds) < 0)
+		goto err;
+
+	if (genavb_mobj_cmd_get_leaf(&cmd, leaf) < 0)
+		goto err;
+
+	if (genavb_mobj_cmd_end_node(&cmd) < 0)
+		goto err;
+
+	if (genavb_mobj_cmd_end_node(&cmd) < 0)
+		goto err;
+
+	if (genavb_mobj_cmd_end_node(&cmd) < 0)
+		goto err;
+
+	if (genavb_mobj_cmd_end_node(&cmd) < 0)
+		goto err;
+
+	if (managed_get(ctrl_h, genavb_mobj_cmd_buf(&cmd), genavb_mobj_cmd_len(&cmd), &get_response, sizeof(get_response)) < 0)
+		goto err;
+
+	if (genavb_mobj_rsp_check((u_int8_t *)&get_response) < 0)
+		goto err;
+
+	/* instance node header */
+	data = get_node_header((uint8_t *)&get_response, &node_id, &length, &status);
+	if (status)
+		goto err;
+
+	/* instance entry key header */
+	data = get_node_header(data, &node_id, &length, &status);
+	if (status)
+		goto err;
+
+	data = get_node_next(data, length);
+
+	/* port-ds node header */
+	data = get_node_header(data, &node_id, &length, &status);
+	if (status)
+		goto err;
+
+	/* port node header */
+	data = get_node_header(data, &node_id, &length, &status);
+	if (status)
+		goto err;
+
+	/* port entry key header */
+	data = get_node_header(data, &node_id, &length, &status);
+	if (status)
+		goto err;
+
+	data = get_node_next(data, length);
+
+	/* container ds */
+	data = get_node_header(data, &node_id, &length, &status);
+	if (status)
+		goto err;
+
+	/* leaf header */
+	data = get_node_header(data, &node_id, &length, &status);
+	if (status)
+		goto err;
+
+	printf("%s %s get instance: %u port: %u, %s/%s:\n", module_name, device_name, instance, port, ds, leaf);
+
+	for (int i = 0; i < length - 2; i++)
+		printf(" value[%u] %u\n", i, data[i]);
+
+	return 0;
+
+err:
+	printf("%s %s get instance: %u port: %u, %s/%s: error\n", module_name, device_name, instance, port, ds, leaf);
+
+	return -1;
+}
+
 int gptp_main(struct genavb_handle *avb_h, int argc, char *argv[])
 {
 	struct genavb_control_handle *ctrl_h;
@@ -265,6 +522,9 @@ int gptp_main(struct genavb_handle *avb_h, int argc, char *argv[])
 	int option;
 	int rc;
 	unsigned long optval_ul;
+	char ds[64];
+	char leaf[64];
+	bool port_is_set, ds_is_set, leaf_is_set;
 
 	rc = genavb_control_open(avb_h, &endpoint_ctrl_h, GENAVB_CTRL_GPTP);
 	if (rc != GENAVB_SUCCESS)
@@ -283,8 +543,11 @@ int gptp_main(struct genavb_handle *avb_h, int argc, char *argv[])
 	instance = 0;
 	port = 0;
 	set = 0;
+	ds_is_set = false;
+	leaf_is_set = false;
+	port_is_set = false;
 
-	while ((option = getopt(argc, argv, "EBGSI:P:psdh")) != -1) {
+	while ((option = getopt(argc, argv, "EBGSI:P:D:L:psdh")) != -1) {
 		/* common options */
 		switch (option) {
 		case 'E':
@@ -321,6 +584,17 @@ int gptp_main(struct genavb_handle *avb_h, int argc, char *argv[])
 				goto exit;
 			}
 			port = (uint16_t)optval_ul;
+			port_is_set = true;
+			break;
+
+		case 'D':
+			h_strncpy(ds, optarg, 64);
+			ds_is_set = true;
+			break;
+
+		case 'L':
+			h_strncpy(leaf, optarg, 64);
+			leaf_is_set = true;
 			break;
 
 		case 'p':
@@ -361,6 +635,13 @@ int gptp_main(struct genavb_handle *avb_h, int argc, char *argv[])
 			usage();
 			rc = -1;
 			goto exit;
+		}
+
+		if 	(ds_is_set && leaf_is_set) {
+			if (port_is_set)
+				get_port_object(ctrl_h, instance, port, ds, leaf);
+			else
+				get_instance_object(ctrl_h, instance, ds, leaf);
 		}
 	}
 

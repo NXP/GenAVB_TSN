@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2021, 2025 NXP
+ * Copyright 2020-2021, 2025-2026 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -25,6 +25,8 @@ void usage (void)
 		"\t-I <instance>         manages gPTP instance index <instance> (default 0)\n"
 		"\t-p <priority1>        set/get gPTP priority1 value\n"
 		"\t-s <state>            set/get gPTP port state\n"
+		"\t-D <data-set>         set/get gPTP specific data-ds\n"
+		"\t-L <leaf>             set/get gPTP specific leaf in data-ds\n"
 		"\t-d                    dump port stats\n"
 		"\nSRP options:\n"
 		"\t-M <status>           set/get msrpEnabledStatus (0: disabled, 1: enabled)\n"

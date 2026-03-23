@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2020-2023, 2025 NXP
+ * Copyright 2018, 2020-2023, 2025-2026 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -479,7 +479,7 @@ end:
 	return out;
 }
 
-static uint8_t *node_iterate(struct node *n, unsigned int id, enum node_operation operation, uint8_t *in, uint8_t *in_end, uint8_t *out, uint8_t *out_end)
+static uint8_t *node_iterate(struct node *n, unsigned int id, enum node_operation operation, uint8_t *in, uint8_t *in_end, uint8_t *out, uint8_t *out_end, uintptr_t base)
 {
 	struct node_header_status *hdr;
 	uint8_t *out_base;
@@ -493,7 +493,7 @@ static uint8_t *node_iterate(struct node *n, unsigned int id, enum node_operatio
 
 	out_base = (uint8_t *)(hdr + 1);
 
-	out = child_iterate(n, operation, in, in_end, out_base, out_end, 0);
+	out = child_iterate(n, operation, in, in_end, out_base, out_end, base);
 
 	child_total_length = out - out_base;
 
@@ -546,7 +546,7 @@ static uint8_t *child_iterate(struct node *n, enum node_operation operation, uin
 
 		switch (child->type) {
 		case NODE_CONTAINER:
-			out = node_iterate(child, child_hdr->id, operation, in, in + child_hdr->length, out, out_end);
+			out = node_iterate(child, child_hdr->id, operation, in, in + child_hdr->length, out, out_end, base);
 
 			break;
 

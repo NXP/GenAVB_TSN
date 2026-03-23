@@ -8,6 +8,7 @@ if(CONFIG_GENAVB_TSN_API)
     control.c
     clock.c
     managed_objects.c
+    managed_objects_gptp.c
     version.c
   )
 

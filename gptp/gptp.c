@@ -1,6 +1,6 @@
 /*
  * Copyright 2015-2016 Freescale Semiconductor, Inc.
- * Copyright 2016-2025 NXP
+ * Copyright 2016-2026 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -1929,6 +1929,8 @@ __init static int gptp_instance_set_config_parameters(struct gptp_instance *inst
 		if (instance->clock_master_log_sync_interval > cfg->port_cfg[port_index].initialLogSyncInterval)
 			instance->clock_master_log_sync_interval = cfg->port_cfg[port_index].initialLogSyncInterval;
 	}
+
+	instance->parentStats = false;
 	instance->gmCapable = domain_cfg->gmCapable;
 	instance->numberPorts = gptp->port_max;
 	instance->versionNumber = PTP_VERSION;

@@ -11,6 +11,8 @@ if (CONFIG_MCUX_COMPONENT_middleware.genavb.api)
         control.h
         error.c
         init.h
+        managed_objects.c
+        managed_objects_gptp.c
         timer.h
         version.c
     )

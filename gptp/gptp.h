@@ -357,7 +357,8 @@ struct gptp_instance {
 	struct ptp_instance_params params;
 
 	/* managed objects without specific storage */
-	u16 numberPorts;	/* 14.2.2 */
+	bool parentStats;
+	u16 numberPorts; /* 14.2.2 */
 	bool gmCapable; /* 14.2.8 */
 	u32 gmChangeCount; /* 14.3.6 */
 	u32 timeOfLastGmChangeEvent; /* 14.3.7 */

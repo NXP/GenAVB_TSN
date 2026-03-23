@@ -17,6 +17,8 @@ genavb_target_add_srcs(TARGET ${avb}
   ../control.c
   ../clock.c
   ../version.c
+  ../managed_objects.c
+  ../managed_objects_gptp.c
   )
 
 if(CONFIG_GENAVB_TSN_SOCKET)

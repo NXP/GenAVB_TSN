@@ -1,6 +1,6 @@
 /*
  * Copyright 2014-2016 Freescale Semiconductor, Inc.
- * Copyright 2016-2019, 2021-2025 NXP
+ * Copyright 2016-2019, 2021-2026 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,10 +21,10 @@
 #include "common/avtp.h"
 #include "common/ether.h"
 #include "common/srp.h"
+#include "common/managed_objects_gptp.h"
 
 #include "genavb/aem.h"
 #include "genavb/qos.h"
-#include "genavb/managed_objects.h"
 
 #include "avdecc.h"
 #include "avdecc_ieee.h"
@@ -44,14 +44,18 @@ struct __attribute__ ((packed)) genavb_avdecc_managed_objects_default_ds_request
 				avb_u16 clk_id_leaf_len;
 				avb_u16 priority1_leaf_id;
 				avb_u16 priority1_leaf_len;
-				avb_u16 clk_class_leaf_id;
-				avb_u16 clk_class_leaf_len;
-				avb_u16 offset_scaled_log_variance_leaf_id;
-				avb_u16 offset_scaled_log_variance_leaf_len;
-				avb_u16 clk_accuracy_leaf_id;
-				avb_u16 clk_accuracy_leaf_len;
 				avb_u16 priority2_leaf_id;
 				avb_u16 priority2_leaf_len;
+				avb_u16 clock_quality_container_id;
+				avb_u16 clock_quality_container_len;
+				struct {
+					avb_u16 clk_class_leaf_id;
+					avb_u16 clk_class_leaf_len;
+					avb_u16 offset_scaled_log_variance_leaf_id;
+					avb_u16 offset_scaled_log_variance_leaf_len;
+					avb_u16 clk_accuracy_leaf_id;
+					avb_u16 clk_accuracy_leaf_len;
+				} clock_quality;
 			} default_ds;
 		} entry;
 	} instance;
@@ -79,22 +83,27 @@ struct __attribute__ ((packed)) genavb_avdecc_managed_objects_default_ds_respons
 				avb_u16 priority1_leaf_len;
 				avb_u16 priority1_leaf_status;
 				avb_u8 priority1_leaf_value;
-				avb_u16 clk_class_leaf_id;
-				avb_u16 clk_class_leaf_len;
-				avb_u16 clk_class_leaf_status;
-				avb_u8 clk_class_leaf_value;
-				avb_u16 offset_scaled_log_variance_leaf_id;
-				avb_u16 offset_scaled_log_variance_leaf_len;
-				avb_u16 offset_scaled_log_variance_leaf_status;
-				avb_u16 offset_scaled_log_variance_leaf_value;
-				avb_u16 clk_accuracy_leaf_id;
-				avb_u16 clk_accuracy_leaf_len;
-				avb_u16 clk_accuracy_leaf_status;
-				avb_u8 clk_accuracy_leaf_value;
 				avb_u16 priority2_leaf_id;
 				avb_u16 priority2_leaf_len;
 				avb_u16 priority2_leaf_status;
 				avb_u8 priority2_leaf_value;
+				struct __attribute__ ((packed)) {
+					avb_u16 clock_quality_container_id;
+					avb_u16 clock_quality_container_len;
+					avb_u16 clock_quality_container_status;
+					avb_u16 clk_class_leaf_id;
+					avb_u16 clk_class_leaf_len;
+					avb_u16 clk_class_leaf_status;
+					avb_u8  clk_class_leaf_value;
+					avb_u16 offset_scaled_log_variance_leaf_id;
+					avb_u16 offset_scaled_log_variance_leaf_len;
+					avb_u16 offset_scaled_log_variance_leaf_status;
+					avb_u16 offset_scaled_log_variance_leaf_value;
+					avb_u16 clk_accuracy_leaf_id;
+					avb_u16 clk_accuracy_leaf_len;
+					avb_u16 clk_accuracy_leaf_status;
+					avb_u8 clk_accuracy_leaf_value;
+				} clock_quality;
 			} default_ds;
 		} entry;
 	} instance;
@@ -179,10 +188,13 @@ static void avdecc_ipc_managed_get_default_ds(struct avdecc_port *port)
 
 		request->instance.entry.default_ds.clk_id_leaf_id = GPTP_DEFAULT_DS_CLOCK_IDENTITY;
 		request->instance.entry.default_ds.priority1_leaf_id = GPTP_DEFAULT_DS_PRIORITY1;
-		request->instance.entry.default_ds.clk_class_leaf_id = GPTP_DEFAULT_DS_CLOCK_CLASS;
-		request->instance.entry.default_ds.offset_scaled_log_variance_leaf_id = GPTP_DEFAULT_DS_OFFSET_SCALED_LOG_VARIANCE;
-		request->instance.entry.default_ds.clk_accuracy_leaf_id = GPTP_DEFAULT_DS_CLOCK_ACCURACY;
 		request->instance.entry.default_ds.priority2_leaf_id = GPTP_DEFAULT_DS_PRIORITY2;
+
+		request->instance.entry.default_ds.clock_quality_container_id = GPTP_DEFAULT_DS_CLOCK_QUALITY;
+		request->instance.entry.default_ds.clock_quality_container_len = sizeof(request->instance.entry.default_ds.clock_quality);
+		request->instance.entry.default_ds.clock_quality.clk_class_leaf_id = GPTP_CLOCK_QUALITY_CLOCK_CLASS;
+		request->instance.entry.default_ds.clock_quality.offset_scaled_log_variance_leaf_id = GPTP_CLOCK_QUALITY_OFFSET_SCALED_LOG_VARIANCE;
+		request->instance.entry.default_ds.clock_quality.clk_accuracy_leaf_id = GPTP_CLOCK_QUALITY_CLOCK_ACCURACY;
 
 		rc = ipc_tx(&port->ipc_tx_gptp, desc);
 		if (rc < 0) {
@@ -243,36 +255,6 @@ static void avdecc_ipc_managed_parse_default_ds_response(struct entity *entity, 
 		goto exit;
 	}
 
-	leaf_len_expected = sizeof(response->instance.entry.default_ds.clk_class_leaf_status) + sizeof(response->instance.entry.default_ds.clk_class_leaf_value);
-	if (response->instance.entry.default_ds.clk_class_leaf_status == 0 && response->instance.entry.default_ds.clk_class_leaf_len == leaf_len_expected) {
-		avb_itf->clock_class = response->instance.entry.default_ds.clk_class_leaf_value;
-
-	} else {
-		os_log(LOG_ERR, "entity(%p): Managed object get clock class failed: status (%u), len : expected(%u) got(%u)\n",
-				entity, response->instance.entry.default_ds.clk_class_leaf_status, leaf_len_expected, response->instance.entry.default_ds.clk_class_leaf_len);
-		goto exit;
-	}
-
-	leaf_len_expected = sizeof(response->instance.entry.default_ds.offset_scaled_log_variance_leaf_status) + sizeof(response->instance.entry.default_ds.offset_scaled_log_variance_leaf_value);
-	if (response->instance.entry.default_ds.offset_scaled_log_variance_leaf_status == 0 && response->instance.entry.default_ds.offset_scaled_log_variance_leaf_len == leaf_len_expected) {
-		avb_itf->offset_scaled_log_variance = response->instance.entry.default_ds.offset_scaled_log_variance_leaf_value;
-
-	} else {
-		os_log(LOG_ERR, "entity(%p): Managed object get offset scaled log variance failed: status (%u), len : expected(%u) got(%u)\n",
-				entity, response->instance.entry.default_ds.offset_scaled_log_variance_leaf_status, leaf_len_expected, response->instance.entry.default_ds.offset_scaled_log_variance_leaf_len);
-		goto exit;
-	}
-
-	leaf_len_expected = sizeof(response->instance.entry.default_ds.clk_accuracy_leaf_status) + sizeof(response->instance.entry.default_ds.clk_accuracy_leaf_value);
-	if (response->instance.entry.default_ds.clk_accuracy_leaf_status == 0 && response->instance.entry.default_ds.clk_accuracy_leaf_len == leaf_len_expected) {
-		avb_itf->clock_accuracy = response->instance.entry.default_ds.clk_accuracy_leaf_value;
-
-	} else {
-		os_log(LOG_ERR, "entity(%p): Managed object get clock accuracy failed: status (%u), len : expected(%u) got(%u)\n",
-				entity, response->instance.entry.default_ds.clk_accuracy_leaf_status, leaf_len_expected, response->instance.entry.default_ds.clk_accuracy_leaf_len);
-		goto exit;
-	}
-
 	leaf_len_expected = sizeof(response->instance.entry.default_ds.priority2_leaf_status) + sizeof(response->instance.entry.default_ds.priority2_leaf_value);
 	if (response->instance.entry.default_ds.priority2_leaf_status == 0 && response->instance.entry.default_ds.priority2_leaf_len == leaf_len_expected) {
 		avb_itf->priority2 = response->instance.entry.default_ds.priority2_leaf_value;
@@ -280,6 +262,36 @@ static void avdecc_ipc_managed_parse_default_ds_response(struct entity *entity, 
 	} else {
 		os_log(LOG_ERR, "entity(%p): Managed object get priority2 failed: status (%u), len : expected(%u) got(%u)\n",
 				entity, response->instance.entry.default_ds.priority2_leaf_status, leaf_len_expected, response->instance.entry.default_ds.priority2_leaf_len);
+		goto exit;
+	}
+
+	leaf_len_expected = sizeof(response->instance.entry.default_ds.clock_quality.clk_class_leaf_status) + sizeof(response->instance.entry.default_ds.clock_quality.clk_class_leaf_value);
+	if (response->instance.entry.default_ds.clock_quality.clk_class_leaf_status == 0 && response->instance.entry.default_ds.clock_quality.clk_class_leaf_len == leaf_len_expected) {
+		avb_itf->clock_class = response->instance.entry.default_ds.clock_quality.clk_class_leaf_value;
+
+	} else {
+		os_log(LOG_ERR, "entity(%p): Managed object get clock class failed: status (%u), len : expected(%u) got(%u)\n",
+				entity, response->instance.entry.default_ds.clock_quality.clk_class_leaf_status, leaf_len_expected, response->instance.entry.default_ds.clock_quality.clk_class_leaf_len);
+		goto exit;
+	}
+
+	leaf_len_expected = sizeof(response->instance.entry.default_ds.clock_quality.offset_scaled_log_variance_leaf_status) + sizeof(response->instance.entry.default_ds.clock_quality.offset_scaled_log_variance_leaf_value);
+	if (response->instance.entry.default_ds.clock_quality.offset_scaled_log_variance_leaf_status == 0 && response->instance.entry.default_ds.clock_quality.offset_scaled_log_variance_leaf_len == leaf_len_expected) {
+		avb_itf->offset_scaled_log_variance = response->instance.entry.default_ds.clock_quality.offset_scaled_log_variance_leaf_value;
+
+	} else {
+		os_log(LOG_ERR, "entity(%p): Managed object get offset scaled log variance failed: status (%u), len : expected(%u) got(%u)\n",
+				entity, response->instance.entry.default_ds.clock_quality.offset_scaled_log_variance_leaf_status, leaf_len_expected, response->instance.entry.default_ds.clock_quality.offset_scaled_log_variance_leaf_len);
+		goto exit;
+	}
+
+	leaf_len_expected = sizeof(response->instance.entry.default_ds.clock_quality.clk_accuracy_leaf_status) + sizeof(response->instance.entry.default_ds.clock_quality.clk_accuracy_leaf_value);
+	if (response->instance.entry.default_ds.clock_quality.clk_accuracy_leaf_status == 0 && response->instance.entry.default_ds.clock_quality.clk_accuracy_leaf_len == leaf_len_expected) {
+		avb_itf->clock_accuracy = response->instance.entry.default_ds.clock_quality.clk_accuracy_leaf_value;
+
+	} else {
+		os_log(LOG_ERR, "entity(%p): Managed object get clock accuracy failed: status (%u), len : expected(%u) got(%u)\n",
+				entity, response->instance.entry.default_ds.clock_quality.clk_accuracy_leaf_status, leaf_len_expected, response->instance.entry.default_ds.clock_quality.clk_accuracy_leaf_len);
 		goto exit;
 	}
 

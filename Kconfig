@@ -1,0 +1,105 @@
+# Copyright 2025 NXP
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
+menu "GenAVB/TSN stack"
+
+  config MCUX_COMPONENT_middleware.genavb
+      bool "GenAVB/TSN stack"
+
+      if MCUX_COMPONENT_middleware.genavb
+
+          config MCUX_COMPONENT_middleware.genavb.api
+              bool "API component"
+              default y
+
+          config MCUX_COMPONENT_middleware.genavb.avdecc
+              bool "AVDECC component"
+              default n
+              select MCUX_COMPONENT_middleware.genavb.maap
+
+          config MCUX_COMPONENT_middleware.genavb.avtp
+              bool "AVTP component"
+              default n
+              select MCUX_COMPONENT_middleware.genavb.srp
+              select MCUX_COMPONENT_middleware.genavb.avdecc
+
+          config MCUX_COMPONENT_middleware.genavb.dsa
+              bool "DSA component"
+              default n
+
+          config MCUX_COMPONENT_middleware.genavb.gptp
+              bool "GPTP component"
+              default y
+
+          config MCUX_COMPONENT_middleware.genavb.hsr
+              bool "HSR component"
+              default n
+
+          config MCUX_COMPONENT_middleware.genavb.maap
+              bool "MAAP component"
+              default n
+
+          config MCUX_COMPONENT_middleware.genavb.management
+              bool "MANAGEMENT component"
+              default y
+
+          config MCUX_COMPONENT_middleware.genavb.socket
+              bool "SOCKET component"
+              default y
+
+          config MCUX_COMPONENT_middleware.genavb.srp
+              bool "SRP component"
+              default n
+
+          config GENAVB_TSN_API
+          bool
+          default y if MCUX_COMPONENT_middleware.genavb.api
+
+          config GENAVB_TSN_AVDECC
+          bool
+          default y if MCUX_COMPONENT_middleware.genavb.avdecc
+
+          config GENAVB_TSN_AVTP
+          bool
+          default y if MCUX_COMPONENT_middleware.genavb.avtp
+
+          config GENAVB_TSN_SRP
+          bool
+          default y if MCUX_COMPONENT_middleware.genavb.srp
+
+          config GENAVB_TSN_DSA
+          bool
+          default y if MCUX_COMPONENT_middleware.genavb.dsa
+
+          config GENAVB_TSN_SOCKET
+          bool
+          default y if MCUX_COMPONENT_middleware.genavb.socket
+
+          config GENAVB_TSN_MAAP
+          bool
+          default y if MCUX_COMPONENT_middleware.genavb.maap
+
+          config GENAVB_TSN_MANAGEMENT
+          bool
+          default y if MCUX_COMPONENT_middleware.genavb.management
+
+          config GENAVB_TSN_GPTP
+          bool
+          default y if MCUX_COMPONENT_middleware.genavb.gptp
+
+          config GENAVB_TSN_HSR
+          bool
+          default y if MCUX_COMPONENT_middleware.genavb.hsr
+
+      endif
+
+  if MCUX_COMPONENT_middleware.genavb.avdecc
+      rsource "./apps/rtos/aem-manager/Kconfig"
+  endif
+
+  config MCUX_COMPONENT_middleware.genavb.lib
+      bool "GenAVB/TSN Stack binary for toolchains that are not able to compile from sources"
+      default n if MCUX_COMPONENT_middleware.genavb
+
+endmenu

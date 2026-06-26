@@ -1,0 +1,12 @@
+# Copyright 2025 NXP
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
+config MCUX_COMPONENT_middleware.genavb.apps.aem_manager
+    bool "AVDECC dynamic entities manager"
+    default n
+    select MCUX_COMPONENT_middleware.genavb.apps.aem_manager.audio_entities
+
+if MCUX_COMPONENT_middleware.genavb.apps.aem_manager
+    rsource "./../../common/aem-manager/Kconfig"
+endif

@@ -1,0 +1,49 @@
+mcux_add_include(
+    INCLUDES
+    .
+)
+
+mcux_add_source(
+    SOURCES
+    api_os/control.h
+    api_os/init.h
+    api_os/streaming.h
+    control.c
+    fdb.c
+    frame_preemption.c
+    frer.c
+    generic.c
+    hsr.c
+    init.c
+    psfp.c
+    qos.c
+    scheduled_traffic.c
+    stream_identification.c
+    timer.c
+    vlan.c
+    ../streaming.h
+)
+
+if(CONFIG_MCUX_COMPONENT_middleware.genavb.socket)
+    mcux_add_source(
+        SOURCES
+        socket.c
+        ../socket.c
+        ../socket.h
+    )
+endif()
+
+if(CONFIG_MCUX_COMPONENT_middleware.genavb.avtp)
+    mcux_add_source(
+        SOURCES
+        streaming.c
+        ../streaming.c
+    )
+endif()
+
+if(CONFIG_MCUX_COMPONENT_middleware.genavb.dsa)
+    mcux_add_source(
+        SOURCES
+        dsa.c
+    )
+endif()

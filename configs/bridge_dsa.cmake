@@ -1,0 +1,8 @@
+genavb_set_option(CONFIG_GENAVB_TSN_GPTP OFF)
+genavb_set_option(CONFIG_GENAVB_TSN_SRP ON)
+genavb_set_option(CONFIG_GENAVB_TSN_MANAGEMENT ON)
+genavb_set_option(CONFIG_GENAVB_TSN_API ON)
+genavb_set_option(CONFIG_GENAVB_TSN_APPS ON)
+genavb_set_option(CONFIG_GENAVB_TSN_SOCKET ON)
+genavb_set_option(CONFIG_GENAVB_TSN_HSR ON)
+genavb_set_option(CONFIG_GENAVB_TSN_DSA ON)

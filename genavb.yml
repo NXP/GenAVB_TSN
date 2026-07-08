@@ -1,0 +1,303 @@
+__load_cmake__:
+- middleware/gen_avb/mcux_genavb.cmake
+__load_kconfig__:
+- middleware/gen_avb/Kconfig
+middleware.genavb:
+  belong_to: set.middleware.genavb
+  contents:
+    package_base_path: middleware/gen_avb
+    project_base_path: gen_avb
+    repo_base_path: middleware/gen_avb
+  section-type: component
+  section_info:
+    description: GenAVB/TSN protocol stack for NXP MPUs and MCUs processors
+    display_name: GenAVB/TSN
+    full_name: GenAVB/TSN
+    taxonomy:
+      belong_to: middleware_genavb
+      csub: genavbtsn
+    type: middleware
+    user_visible: always
+    version: 7.6.0
+middleware.genavb.api:
+  belong_to: set.middleware.genavb
+  contents:
+    package_base_path: middleware/gen_avb
+    project_base_path: gen_avb
+    repo_base_path: middleware/gen_avb
+  section-type: component
+  section_info:
+    description: GenAVB/TSN API
+    display_name: GenAVB/TSN api
+    full_name: GenAVB/TSN API component
+    taxonomy:
+      belong_to: middleware_genavb
+      csub: genavb.api
+    type: middleware
+    user_visible: always
+    version: 7.6.0
+middleware.genavb.avdecc:
+  belong_to: set.middleware.genavb
+  contents:
+    package_base_path: middleware/gen_avb
+    project_base_path: gen_avb
+    repo_base_path: middleware/gen_avb
+  section-type: component
+  section_info:
+    description: GenAVB/TSN avdecc
+    display_name: GenAVB/TSN avdecc
+    full_name: GenAVB/TSN AVDECC component
+    taxonomy:
+      belong_to: middleware_genavb
+      csub: genavbtsn.avdecc
+    type: middleware
+    user_visible: always
+    version: 7.6.0
+middleware.genavb.avtp:
+  belong_to: set.middleware.genavb
+  contents:
+    package_base_path: middleware/gen_avb
+    project_base_path: gen_avb
+    repo_base_path: middleware/gen_avb
+  section-type: component
+  section_info:
+    description: GenAVB/TSN avtp
+    display_name: GenAVB/TSN avtp
+    full_name: GenAVB/TSN AVTP component
+    taxonomy:
+      belong_to: middleware_genavb
+      csub: genavbtsn.avtp
+    type: middleware
+    user_visible: always
+    version: 7.6.0
+middleware.genavb.srp:
+  belong_to: set.middleware.genavb
+  contents:
+    package_base_path: middleware/gen_avb
+    project_base_path: gen_avb
+    repo_base_path: middleware/gen_avb
+  section-type: component
+  section_info:
+    description: GenAVB/TSN srp
+    display_name: GenAVB/TSN srp
+    full_name: GenAVB/TSN SRP component
+    taxonomy:
+      belong_to: middleware_genavb
+      csub: genavbtsn.srp
+    type: middleware
+    user_visible: always
+    version: 7.6.0
+middleware.genavb.maap:
+  belong_to: set.middleware.genavb
+  contents:
+    package_base_path: middleware/gen_avb
+    project_base_path: gen_avb
+    repo_base_path: middleware/gen_avb
+  section-type: component
+  section_info:
+    description: GenAVB/TSN maap
+    display_name: GenAVB/TSN maap
+    full_name: GenAVB/TSN MAAP component
+    taxonomy:
+      belong_to: middleware_genavb
+      csub: genavbtsn.maap
+    type: middleware
+    user_visible: always
+    version: 7.6.0
+middleware.genavb.management:
+  belong_to: set.middleware.genavb
+  contents:
+    package_base_path: middleware/gen_avb
+    project_base_path: gen_avb
+    repo_base_path: middleware/gen_avb
+  section-type: component
+  section_info:
+    description: GenAVB/TSN management
+    display_name: GenAVB/TSN management
+    full_name: GenAVB/TSN MANAGEMENT component
+    taxonomy:
+      belong_to: middleware_genavb
+      csub: genavbtsn.management
+    type: middleware
+    user_visible: always
+    version: 7.6.0
+middleware.genavb.socket:
+  belong_to: set.middleware.genavb
+  contents:
+    package_base_path: middleware/gen_avb
+    project_base_path: gen_avb
+    repo_base_path: middleware/gen_avb
+  section-type: component
+  section_info:
+    description: GenAVB/TSN socket
+    display_name: GenAVB/TSN socket
+    full_name: GenAVB/TSN SOCKET component
+    taxonomy:
+      belong_to: middleware_genavb
+      csub: genavbtsn.socket
+    type: middleware
+    user_visible: always
+    version: 7.6.0
+middleware.genavb.gptp:
+  belong_to: set.middleware.genavb
+  contents:
+    package_base_path: middleware/gen_avb
+    project_base_path: gen_avb
+    repo_base_path: middleware/gen_avb
+  section-type: component
+  section_info:
+    description: GenAVB/TSN gptp
+    display_name: GenAVB/TSN gptp
+    full_name: GenAVB/TSN GPTP component
+    taxonomy:
+      belong_to: middleware_genavb
+      csub: genavbtsn.gptp
+    type: middleware
+    user_visible: always
+    version: 7.6.0
+middleware.genavb.hsr:
+  belong_to: set.middleware.genavb
+  contents:
+    package_base_path: middleware/gen_avb
+    project_base_path: gen_avb
+    repo_base_path: middleware/gen_avb
+  section-type: component
+  section_info:
+    description: GenAVB/TSN hsr
+    display_name: GenAVB/TSN hsr
+    full_name: GenAVB/TSN HSR component
+    taxonomy:
+      belong_to: middleware_genavb
+      csub: genavbtsn.hsr
+    type: middleware
+    user_visible: always
+    version: 7.6.0
+middleware.genavb.dsa:
+  belong_to: set.middleware.genavb
+  contents:
+    package_base_path: middleware/gen_avb
+    project_base_path: gen_avb
+    repo_base_path: middleware/gen_avb
+  section-type: component
+  section_info:
+    description: GenAVB/TSN dsa
+    display_name: GenAVB/TSN dsa
+    full_name: GenAVB/TSN DSA component
+    taxonomy:
+      belong_to: middleware_genavb
+      csub: genavbtsn.dsa
+    type: middleware
+    user_visible: always
+    version: 7.6.0
+middleware.genavb.apps.aem_manager.audio_entities:
+  belong_to: set.middleware.genavb
+  contents:
+    package_base_path: middleware/gen_avb
+    project_base_path: gen_avb
+    repo_base_path: middleware/gen_avb
+  section-type: component
+  section_info:
+    description: GenAVB/TSN AEM manager audio_entities
+    display_name: GenAVB/TSN AEM manager audio_entities
+    full_name: GenAVB/TSN AEM manager audio_entities sources
+    taxonomy:
+      belong_to: middleware_genavb
+      csub: genavbtsn.aem_manager.audio_entities
+    type: middleware
+    user_visible: always
+    version: 7.6.0
+middleware.genavb.apps.aem_manager:
+  belong_to: set.middleware.genavb
+  contents:
+    package_base_path: middleware/gen_avb
+    project_base_path: gen_avb
+    repo_base_path: middleware/gen_avb
+  section-type: component
+  section_info:
+    description: GenAVB/TSN AEM manager rtos
+    display_name: GenAVB/TSN AEM manager rtos
+    full_name: GenAVB/TSN AEM manager rtos sources
+    taxonomy:
+      belong_to: middleware_genavb
+      csub: genavbtsn.aem_manager.rtos
+    type: middleware
+    user_visible: always
+    version: 7.6.0
+middleware.genavb.lib:
+  belong_to: set.middleware.genavb
+  contents:
+    package_base_path: middleware/gen_avb
+    project_base_path: gen_avb
+    repo_base_path: middleware/gen_avb
+  section-type: component
+  section_info:
+    description: GenAVB/TSN Stack binary
+    display_name: GenAVB/TSN Stack binary
+    full_name: GenAVB/TSN Stack binary
+    taxonomy:
+      belong_to: middleware_genavb
+      csub: genavbtsn.lib.bin
+    type: middleware
+    user_visible: always
+    version: 7.6.0
+scr.genavb:
+  belong_to: set.middleware.genavb
+  contents:
+    Description: GenAVB/TSN protocol stack for NXP MPUs and MCUs processors
+    Format: source code
+    Location: middleware/gen_avb
+    Name: gen_avb
+    Origin: NXP (BSD-3-Clause)
+    Version: 7.6.0
+    license:
+    - license.bsd-3
+  section-type: scr
+set.middleware.genavb:
+  belong_to: set.middleware.genavb
+  dependency:
+    anyOf:
+    - ip:
+      - DriverType_ENET
+    - ip:
+      - DriverType_ENET_QOS
+    - ip:
+      - DriverType_NETC
+    - device:
+      - MIMXRT1052
+      - MIMXRT1176
+      - MIMXRT1186
+      - MIMXRT1189
+      - MCXE31B
+      - MCXE247
+  section-type: set
+  section_info:
+    component_taxonomy:
+      middleware_genavb:
+        cclass: Network
+        cgroup: GenAVB_TSN_stack
+    description: genavb
+    display_name: genavb
+    fixed_id: nxp_genavb
+    product:
+      cmsis_pack:
+        pack_root:
+          pack_name: genavb
+          pack_type: SWP
+          pack_version: 1.0.0
+        scr:
+        - scr.genavb
+        supported: true
+        vendor: NXP
+      kex_package:
+        kex_web_ui:
+          ui_category: Middleware
+          ui_control: true
+          ui_control_default: false
+          ui_release_specific: true
+        scr:
+        - scr.genavb
+    set_location:
+      repo_base_path: middleware/genavb
+    type: middleware
+    vendor: NXP
+    version: 7.6.0

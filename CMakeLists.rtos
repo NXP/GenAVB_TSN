@@ -1,0 +1,17 @@
+# "genavb_sdk" is a source-less library that is used as a single
+# entry point cmake target for the GenAVB/TSN stack. In other words, applications
+# should link to this library
+add_library(genavb_sdk INTERFACE)
+
+# Store the all the compiled (with actual source files) static libraries
+# as a target property that can be retrieved by a parent scope/caller.
+# genavb_used_libs contains all core libraries already, append the stack-rtos to
+# the list.
+set(genavb_all_libs ${genavb_used_libs})
+list(APPEND genavb_all_libs stack-rtos)
+
+target_link_libraries(genavb_sdk INTERFACE ${genavb_all_libs})
+
+set_target_properties(genavb_sdk PROPERTIES
+  GENAVB_SDK_LIBRARIES "${genavb_all_libs}"
+)

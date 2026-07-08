@@ -1,0 +1,5 @@
+genavb_set_option(CONFIG_GENAVB_TSN_MANAGEMENT ON)
+genavb_set_option(CONFIG_GENAVB_TSN_API ON)
+genavb_set_option(CONFIG_GENAVB_TSN_APPS ON)
+genavb_set_option(CONFIG_GENAVB_TSN_SOCKET ON)
+

@@ -1,0 +1,73 @@
+NXP Software Content Register
+
+Release Name:           genavb-sdk
+Version:                GenAVB/TSN 8_3_0
+Date Created:           July-2026
+Release Location:       https://github.com/NXP/GenAVB_TSN
+Description:            GenAVB/TSN protocol stack for NXP MPUs and MCUs processors
+Outgoing License:       LA_OPT_Online Code Hosting NXP_Software_License - v1.4 May 2025 - Section 4 applies
+License File:           LICENSE
+Origin:                 NXP (BSD-3-Clause)
+                        NXP (GPL-2.0-or-later)
+                        NXP (GPL-2.0-or-later WITH Linux-syscall-note)
+                        NXP (CC0-1.0)
+                        xoroshiro generator - David Blackman and Sebastiano Vigna (vigna@acm.org) (0BSD) - https://prng.di.unimi.it/xoroshiro64starstar.c
+
+----------------------------------------
+
+Package:                        api
+                                apps
+                                avdecc
+                                avtp
+                                common
+                                configs
+                                gptp
+                                hsr
+                                include
+                                linux
+                                maap
+                                management
+                                os
+                                public
+                                rtos
+                                srp
+Outgoing License:               BSD-3-Clause
+License File:                   licenses/BSD-3-Clause
+Package Category:               GenAVB/TSN Stack and Applications
+Description and comments:       GenAVB/TSN stack with example applications
+Type of content:                Source code
+Description and comments:       GenAVB/TSN library
+Origin:                         NXP (BSD-3-Clause)
+
+Package:                        linux/modules
+Outgoing License:               GPL-2.0-or-later
+License File:                   licenses/COPYING
+Package Category:               GenAVB/TSN Stack
+Description and comments:       Linux modules driver for GenAVB/TSN stack
+Type of content:                Source code
+Origin:                         NXP (GPL-2.0-or-later)
+
+Package:                        linux/headers_extensions.h
+Outgoing License:               GPL-2.0-or-later WITH Linux-syscall-note
+License File:                   licenses/Linux-syscall-note
+Package Category:               Headers definitions
+Description and comments:       Missing kernel uapi definitions from toolchain headers.
+Type of content:                Source code
+Origin:                         NXP (GPL-2.0-or-later WITH Linux-syscall-note)
+
+Package:                        doc
+Outgoing License:               CC0-1.0
+License File:                   licenses/CC0-1.0
+Package Category:               GenAVB/TSN Documentation
+Description and comments:       Documentation for GenAVB/TSN stack
+Type of content:                Documentation
+Origin:                         NXP (CC0-1.0)
+
+Package:                        rtos/prng.c
+                                rtos/prng.h
+Outgoing License:               0BSD
+License File:                   licenses/0BSD
+Package Category:               xoroshiro generator
+Description and comments:       xoroshiro random number generator
+Type of content:                Source code
+Origin:                         xoroshiro generator - David Blackman and Sebastiano Vigna (vigna@acm.org) (CC0-1.0) - https://prng.di.unimi.it/xoroshiro64starstar.c
